@@ -1,0 +1,20 @@
+body {
+    margin: 0;
+}
+.display-grid {
+    display: grid;
+}
+.cards {
+    margin-top: 30px;
+
+}
+.card {
+    flex: auto;
+    margin: 30px;
+}
+p {
+    margin: 0;
+}
+.add-server-input, .select_payment_type, .add_product {
+    width: 350px;
+}

@@ -1,0 +1,4 @@
+.idea
+db.sqlite3
+__pycache__
+shop/migrations

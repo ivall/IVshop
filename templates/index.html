@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="container">
+        {% if request.session.username %}
+                <div class="add-server-button d-flex justify-content-center">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addServerModal">Dodaj serwer</button>
+                </div>
+                <!-- Add server modal -->
+                <div class="modal fade" id="addServerModal" tabindex="-1" role="dialog" aria-labelledby="addServerModal" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="addServerModalLabel">Dodaj serwer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="form-group col-md-6">
+                            <label for="server-name" class="col-form-label">Nazwa serwera</label>
+                            <input type="text" name="server-name" class="form-control add-server-input" id="server-name">
+                            <label for="server-ip" class="col-form-label">IP serwera</label>
+                            <input type="text" name="server-ip" class="form-control add-server-input" id="server-ip">
+                            <label for="rcon-password" class="col-form-label">Hasło rcon</label>
+                            <input type="password" name="rcon-password" class="form-control add-server-input" id="rcon-password" autocomplete="new-password">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                        <button type="button" class="btn btn-primary add-server">Dodaj</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            {% for server in data %}
+                <div class="row cards">
+                    <div class="col card" style="max-width: 30rem;">
+                      <div class="card-body">
+                        <h4 class="card-title">{{ server.server_name }}</h4>
+                        <p class="card-text">
+                            {% if server.server_status == True %}
+                            <span class="badge badge-success">ON</span>&nbsp;
+                            {% else %}
+                            <span class="badge badge-danger">OFF</span>&nbsp;
+                            {% endif %}
+                            <span class="badge badge-light">{{ server.server_version }}</span>&nbsp;
+                            <span class="badge badge-light">{{ server.server_players }}</span>
+                        </p>
+                        <a href="/panel/{{ server.id }}" class="btn btn-primary">Zarządzaj</a>
+                      </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-light" role="alert">
+                <p class="text-center">Aby skorzystać z itemshopu <a href="/login">zaloguj się</a>.</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
