@@ -31,11 +31,12 @@ $(document).ready(function() {
         var product_description = $("#product_description").val();
         var product_price = $("#product_price").val();
         var product_sms_price = $("#product_sms_price").val();
+        var product_commands = $("#product_commands").val();
         $.ajax({
             url: '/add_product/',
             type: 'POST',
             data: {product_name: product_name, server_id: server_id, product_description: product_description,
-                product_price: product_price, product_sms_price: product_sms_price},
+                product_price: product_price, product_sms_price: product_sms_price, product_commands: product_commands},
             success: function (data) {
                 toastr.success(data.message);
                 $('#addProductModal').modal('hide');
@@ -72,6 +73,45 @@ $(document).ready(function() {
                 toastr.error(data.responseJSON.message);
                 $('.save-settings').prop('disabled', false);
                 $('.save-settings').html('Zapisz');
+            }
+        });
+    });
+    $(document).on("click", ".buy_button", function () {
+    var product_id = $(this).attr('product_id');
+    var sms_number = $('#sms_lvlup_number'+product_id).val();
+    if($('#sms_lvlup'+product_id).is(':checked')) {
+        $('#lvlup_sms_modal').modal('show');
+        $('.modal-body').html(`
+        <p>Wyślij SMS na numer <b>`+sms_number+`</b> o treści <b>AP.HOSTMC</b></p>
+        <input type="hidden" id="product_id_modal" value="`+product_id+`">
+        <input type="hidden" id="product_sms_number_modal" value="`+sms_number+`">
+        <label for="player_nick" class="col-form-label">Nick gracza</label>
+        <input type="text" name="player_nick" class="form-control" id="player_nick">
+        <label for="sms_code" class="col-form-label">Kod SMS</label>
+        <input type="text" name="sms_code" class="form-control" id="sms_code">`)
+    }
+    });
+    $(document).on("click", ".sms_buy_button", function () {
+        $(this).prop('disabled', true);
+        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+        var product_id = $('#product_id_modal').val();
+        var sms_number = $('#product_sms_number_modal').val();
+        var player_nick = $('#player_nick').val();
+        var sms_code = $('#sms_code').val();
+        $.ajax({
+            url: '/buy_sms/',
+            type: 'POST',
+            data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code},
+            success: function (data) {
+                toastr.success(data.message);
+                $('#lvlup_sms_modal').modal('hide');
+                $('.sms_buy_button').prop('disabled', false);
+                $('.sms_buy_button').html('Kup');
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.sms_buy_button').prop('disabled', false);
+                $('.sms_buy_button').html('Kup');
             }
         });
     });

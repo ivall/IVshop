@@ -15,3 +15,7 @@ toastr.options = {
 	"showMethod": "fadeIn",
 	"hideMethod": "fadeOut"
 };
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});

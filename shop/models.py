@@ -20,3 +20,4 @@ class Product(models.Model):
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
     price = models.CharField(max_length=10)
     sms_number = models.IntegerField()
+    product_commands = models.CharField(max_length=2000)

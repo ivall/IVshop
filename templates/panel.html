@@ -2,7 +2,7 @@
 {% block body %}
     <div class="container">
         <div class="text-center">
-            <h2>MojePvP</h2>
+            <h2>{{ server_name }}</h2>
         </div>
         <div class="statistics" style="display: flex;">
            <div class="card" style="width: 10rem">
@@ -38,7 +38,7 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="" data-toggle="modal" data-target="#settingsModal">Ustawienia</a>
+                <a href="" data-toggle="modal" data-target="#settingsModal">Operator płatności</a>
             </div>
         </div>
     </div>
@@ -47,14 +47,14 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="settingsModalLabel">Ustawienia</h5>
+            <h5 class="modal-title" id="settingsModalLabel">Operator płatności</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
               <div class="form-group col-md-6">
-                  <label for="select_payment_type">Operator płatności</label>
+                  <label for="select_payment_type">Operator</label>
                   <select class="custom-select" id="select_payment_type">
                     <option value="1" >Lvlup</option>
                   </select>
@@ -102,9 +102,11 @@
                       <option value="79068">11,07 PLN</option>
                       <option value="91068">12,30 PLN</option>
                       <option value="91758">20,91 PLN</option>
-                      <option value="92058">24,60 PLN</option>
                       <option value="92578">30,75 PLN</option>
                   </select>
+                  <label for="product_commands" class="col-form-label">Komendy</label>
+                  <textarea name="product_commands" class="form-control add_product" id="product_commands"></textarea>
+                  <label for="product_commands" class="col-form-label" style="width: 200%;"><p>Komendy oddzielaj <b>średnikami</b>. Nick gracza to <b>{PLAYER}</b>.</p></label>
               </div>
           </div>
           <div class="modal-footer">

@@ -9,5 +9,7 @@ urlpatterns = [
     path('add_server/', views.add_server, name='add_server'),
     path('panel/<int:server_id>/', views.panel, name='panel'),
     path('add_product/', views.add_product, name='add_product'),
-    path('save_settings/', views.save_settings, name='save_settings')
+    path('save_settings/', views.save_settings, name='save_settings'),
+    path('shop/<int:server_id>/', views.shop, name='shop'),
+    path('buy_sms/', views.buy_sms, name='buy_sms')
 ]

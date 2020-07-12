@@ -6,7 +6,6 @@ body {
 }
 .cards {
     margin-top: 30px;
-
 }
 .card {
     flex: auto;
@@ -17,4 +16,21 @@ p {
 }
 .add-server-input, .select_payment_type, .add_product {
     width: 350px;
+}
+.shop-cards {
+    justify-content: center;
+    width: 100%;
+}
+.shop-card {
+    width: 50rem;
+}
+.buy_button {
+    float: right;
+    color: #fff;
+}
+.custom-control {
+    margin: 15px;
+}
+.custom-control {
+    margin-left: 0px;
 }
