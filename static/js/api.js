@@ -77,21 +77,30 @@ $(document).ready(function() {
         });
     });
     $(document).on("click", ".buy_button", function () {
-    var product_id = $(this).attr('product_id');
-    var sms_number = $('#sms_lvlup_number'+product_id).val();
-    if($('#sms_lvlup'+product_id).is(':checked')) {
-        $('#lvlup_sms_modal').modal('show');
-        $('.modal-body').html(`
-        <p>Wyślij SMS na numer <b>`+sms_number+`</b> o treści <b>AP.HOSTMC</b></p>
-        <input type="hidden" id="product_id_modal" value="`+product_id+`">
-        <input type="hidden" id="product_sms_number_modal" value="`+sms_number+`">
-        <label for="player_nick" class="col-form-label">Nick gracza</label>
-        <input type="text" name="player_nick" class="form-control" id="player_nick">
-        <label for="sms_code" class="col-form-label">Kod SMS</label>
-        <input type="text" name="sms_code" class="form-control" id="sms_code">`)
-    }
+        var product_id = $(this).attr('product_id');
+        var sms_number = $('#sms_lvlup_number'+product_id).val();
+        if($('#sms_lvlup'+product_id).is(':checked')) {
+            $('#lvlup_modal').modal('show');
+            $('.btn-success').addClass('lvlup_sms_buy_button');
+            $('.modal-body').html(`
+            <p>Wyślij SMS na numer <b>`+sms_number+`</b> o treści <b>AP.HOSTMC</b></p>
+            <input type="hidden" id="product_id_modal" value="`+product_id+`">
+            <input type="hidden" id="product_sms_number_modal" value="`+sms_number+`">
+            <label for="player_nick" class="col-form-label">Nick gracza</label>
+            <input type="text" name="player_nick" class="form-control" id="player_nick">
+            <label for="sms_code" class="col-form-label">Kod SMS</label>
+            <input type="text" name="sms_code" class="form-control" id="sms_code">`)
+        }
+        else if($('#other_lvlup'+product_id).is(':checked')) {
+            $('#lvlup_modal').modal('show');
+            $('.btn-success').addClass('lvlup_other_buy_button');
+            $('.modal-body').html(`
+            <input type="hidden" id="product_id_modal" value="`+product_id+`">
+            <label for="player_nick" class="col-form-label">Nick gracza</label>
+            <input type="text" name="player_nick" class="form-control" id="player_nick">`)
+        }
     });
-    $(document).on("click", ".sms_buy_button", function () {
+    $(document).on("click", ".lvlup_sms_buy_button", function () {
         $(this).prop('disabled', true);
         $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         var product_id = $('#product_id_modal').val();
@@ -104,14 +113,33 @@ $(document).ready(function() {
             data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code},
             success: function (data) {
                 toastr.success(data.message);
-                $('#lvlup_sms_modal').modal('hide');
-                $('.sms_buy_button').prop('disabled', false);
-                $('.sms_buy_button').html('Kup');
+                $('#lvlup_modal').modal('hide');
+                $('.lvlup_sms_buy_button').prop('disabled', false);
+                $('.lvlup_sms_buy_button').html('Kup');
             },
             error: function (data) {
                 toastr.error(data.responseJSON.message);
-                $('.sms_buy_button').prop('disabled', false);
-                $('.sms_buy_button').html('Kup');
+                $('.lvlup_sms_buy_button').prop('disabled', false);
+                $('.lvlup_sms_buy_button').html('Kup');
+            }
+        });
+    });
+    $(document).on("click", ".lvlup_other_buy_button", function () {
+        $(this).prop('disabled', true);
+        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+        var product_id = $('#product_id_modal').val();
+        var player_nick = $('#player_nick').val();
+        $.ajax({
+            url: '/buy_other/',
+            type: 'POST',
+            data: {product_id: product_id, player_nick: player_nick},
+            success: function (data) {
+                window.location.replace(data.message);
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.lvlup_other_buy_button').prop('disabled', false);
+                $('.lvlup_other_buy_button').html('Kup');
             }
         });
     });

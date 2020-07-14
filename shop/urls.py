@@ -11,5 +11,6 @@ urlpatterns = [
     path('add_product/', views.add_product, name='add_product'),
     path('save_settings/', views.save_settings, name='save_settings'),
     path('shop/<int:server_id>/', views.shop, name='shop'),
-    path('buy_sms/', views.buy_sms, name='buy_sms')
+    path('buy_sms/', views.buy_sms, name='buy_sms'),
+    path('buy_other/', views.buy_other, name='buy_other')
 ]

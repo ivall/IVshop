@@ -8,10 +8,9 @@ from mcrcon import MCRcon
 
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import authorize_panel
-from .models import Server, Product
+from .models import Server, Product, Purchase
 
 import requests
-import re
 
 """
 from shop.utils.functions import actualize_servers_data
@@ -99,11 +98,16 @@ def add_server(request):
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
         counted_products = Product.objects.filter(server__id=server_id).count()
+        purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
+        purchases = Purchase.objects.filter(product__server__id=server_id)
         server = Server.objects.get(id=server_id)
         context = {
             'server_id': server_id,
             'server_name': server.server_name,
-            'counted_products': counted_products
+            'counted_products': counted_products,
+            'purchases_count': purchases_count,
+            'purchases': purchases,
+            'client_id': server.client_id
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -156,24 +160,28 @@ def save_settings(request):
 
 
 def shop(request, server_id):
-    check_server_exists = Server.objects.get(id=server_id)
-    if check_server_exists:
-        products = Product.objects.filter(server__id=server_id)
-        context = {
-            'server': check_server_exists,
-            'products': products
-        }
-        return render(request, 'shop.html', context=context)
-    return redirect('/')
+    try:
+        check_server_exists = Server.objects.get(id=server_id)
+    except:
+        return render(request, '404.html')
+    products = Product.objects.filter(server__id=server_id)
+    context = {
+        'server': check_server_exists,
+        'products': products
+    }
+    return render(request, 'shop.html', context=context)
+
 
 
 @csrf_exempt
 def buy_sms(request):
-    if not request.POST.get('player_nick') or not request.POST.get('sms_code') or request.POST.get('sms_code') == 'TEST' or not request.method == "POST":
+    if not request.POST.get('player_nick') or not request.POST.get('sms_code') or not request.method == "POST":
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
-    check_product = Product.objects.filter(id=request.POST.get("product_id"), sms_number=request.POST.get("sms_number")).values('server__client_id', 'server__server_ip', 'server__rcon_password', 'product_commands')
+    check_product = Product.objects.filter(id=request.POST.get("product_id"), sms_number=request.POST.get("sms_number")).values('server__client_id', 'server__server_ip', 'server__rcon_password', 'product_commands', 'server__server_status')
     if not check_product:
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
+    if check_product[0]['server__server_status'] == 0:
+        return JsonResponse({'message': 'Serwer jest aktualnie wyłączony, zachowaj kod i wykorzystaj go, gdy serwer będzie włączony.'}, status=411)
     number = request.POST.get("sms_number")
     code = request.POST.get('sms_code')
     client_id = check_product[0]['server__client_id']
@@ -188,5 +196,35 @@ def buy_sms(request):
         for command in commands:
             mcr.command(command.replace("{PLAYER}", request.POST.get('player_nick')))
         mcr.disconnect()
+        p = Purchase(
+            lvlup_id="sms",
+            buyer=request.POST.get("player_nick"),
+            product=Product.objects.get(id=request.POST.get("product_id")),
+            status=1,
+        )
+        p.save()
         return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
     return JsonResponse({'message': 'Niepoprawny kod SMS.'}, status=401)
+
+
+@csrf_exempt
+def buy_other(request):
+    if not request.POST.get('product_id') or not request.POST.get('player_nick'):
+        return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+    api_key = Product.objects.filter(id=request.POST.get('product_id')).values('server__api_key', 'price', 'server__server_status')
+    if api_key[0]['server__server_status'] == 0:
+        return JsonResponse({'message': 'Serwer jest aktualnie wyłączony.'}, status=411)
+    price = api_key[0]['price']
+    payment = Payments(api_key[0]['server__api_key'], 'sandbox')
+    link = payment.create_payment(format(float(price), '.2f'), '', '')
+    url = link['url']
+    payment_id = link['id']
+    p = Purchase(
+        lvlup_id=payment_id,
+        buyer=request.POST.get("player_nick"),
+        product=Product.objects.get(id=request.POST.get("product_id")),
+        status=0,
+    )
+    p.save()
+    return JsonResponse({'message': url}, status=200)
+

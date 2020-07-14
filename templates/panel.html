@@ -3,6 +3,7 @@
     <div class="container">
         <div class="text-center">
             <h2>{{ server_name }}</h2>
+            <a href="/shop/{{ server_id }}">sklep</a>
         </div>
         <div class="statistics" style="display: flex;">
            <div class="card" style="width: 10rem">
@@ -21,7 +22,7 @@
                        Kupione produkty
                    </div>
                   <div class="card-body">
-                      <b>0</b>
+                      <b>{{ purchases_count }}</b>
                   </div>
                </div>
             </div>
@@ -33,7 +34,7 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="#">Lista zakupów</a>
+                <a href="" data-toggle="modal" data-target="#paymentsHistoryModal">Lista zakupów</a>
             </div>
         </div>
         <div class="alert alert-light" role="alert">
@@ -60,7 +61,7 @@
                   </select>
                   <input type="hidden" value="{{ server_id }}" id="server_id">
                   <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
-                  <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id">
+                  <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
                   <label for="lvlup_api_key" class="col-form-label">Klucz api</label>
                   <input type="text" name="lvlup_api_key" class="form-control select_payment_type" id="lvlup_api_key">
               </div>
@@ -112,6 +113,57 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
             <button type="button" class="btn btn-primary add_product_button">Dodaj</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Payments history modal -->
+    <div class="modal fade" id="paymentsHistoryModal" tabindex="-1" role="dialog" aria-labelledby="paymentsHistoryModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="paymentsHistoryModalLabel">Lista zakupów</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Produkt</th>
+                    <th>Kupiec</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for purchase in purchases %}
+                      <tr>
+                        <td>{{ purchase.product.product_name }}</td>
+                        <td>{{ purchase.buyer }}</td>
+                        <td>
+                            {% if purchase.status == 0 %}
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                                  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                                </svg>
+                            {% else %}
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-check2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ purchase.date|date:"d.m.Y" }} {{ purchase.date|time:"H:i" }}
+                        </td>
+                      </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
           </div>
         </div>
       </div>
