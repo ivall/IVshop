@@ -3,7 +3,17 @@ import requests
 from shop.models import Server
 from django.contrib import messages
 from django.shortcuts import redirect
+from mcrcon import MCRcon
+from django.http import JsonResponse
 import requests
+
+
+def send_commands(server_ip, rcon_password, commands, buyer):
+    mcr = MCRcon(server_ip, rcon_password)
+    mcr.connect()
+    for command in commands:
+        mcr.command(command.replace("{PLAYER}", buyer))
+    mcr.disconnect()
 
 def authorize_panel(request, server_id):
     if 'user_id' not in request.session:

@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -7,7 +9,7 @@ from lvluppayments import Payments
 from mcrcon import MCRcon
 
 from shop.utils.oauth2 import Oauth
-from shop.utils.functions import authorize_panel
+from shop.utils.functions import authorize_panel, send_commands
 from .models import Server, Product, Purchase
 
 import requests
@@ -104,6 +106,7 @@ def panel(request, server_id):
         context = {
             'server_id': server_id,
             'server_name': server.server_name,
+            'server_ip': server.server_ip,
             'counted_products': counted_products,
             'purchases_count': purchases_count,
             'purchases': purchases,
@@ -191,11 +194,10 @@ def buy_sms(request):
         server_ip = check_product[0]['server__server_ip']
         rcon_password = check_product[0]['server__rcon_password']
         commands = check_product[0]['product_commands'].split(';')
-        mcr = MCRcon(server_ip, rcon_password)
-        mcr.connect()
-        for command in commands:
-            mcr.command(command.replace("{PLAYER}", request.POST.get('player_nick')))
-        mcr.disconnect()
+        try:
+            send_commands(server_ip,rcon_password,commands,request.POST.get('player_nick'))
+        except:
+            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         p = Purchase(
             lvlup_id="sms",
             buyer=request.POST.get("player_nick"),
@@ -227,4 +229,43 @@ def buy_other(request):
     )
     p.save()
     return JsonResponse({'message': url}, status=200)
+
+
+@csrf_exempt
+def lvlup_check(request):
+    data = json.loads(request.body)
+    paymentId = data['paymentId']
+    status = data['status']
+    check_payment = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer', 'product__server__server_ip', 'product__server__rcon_password', 'product__product_commands')
+    if check_payment and status == 'CONFIRMED':
+        server_ip = check_payment[0]['product__server__server_ip']
+        rcon_password = check_payment[0]['product__server__rcon_password']
+        commands = check_payment[0]['product__product_commands'].split(';')
+        try:
+            send_commands(server_ip,rcon_password,commands,check_payment[0]['buyer'])
+        except:
+            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
+        Purchase.objects.filter(id=check_payment[0]['id']).update(status=1)
+        return JsonResponse({'message': 'Udało się.'}, status=200)
+    return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
+
+
+@csrf_exempt
+def save_settings2(request):
+    if 'username' in request.session and 'user_id' in request.session and request.method == 'POST':
+        if not request.POST.get("server_id") or not request.POST.get("server_name") or not request.POST.get(
+                "server_ip") or not request.POST.get("rcon_password"):
+            return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
+        authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
+        if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
+            Server.objects.filter(id=request.POST.get("server_id")).update(
+                server_name=request.POST.get("server_name"),
+                server_ip=request.POST.get("server_ip"),
+                rcon_password=request.POST.get("rcon_password"))
+            return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
+        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika lub metodą.'}, status=401)
+
+
+
 

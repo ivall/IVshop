@@ -12,5 +12,7 @@ urlpatterns = [
     path('save_settings/', views.save_settings, name='save_settings'),
     path('shop/<int:server_id>/', views.shop, name='shop'),
     path('buy_sms/', views.buy_sms, name='buy_sms'),
-    path('buy_other/', views.buy_other, name='buy_other')
+    path('buy_other/', views.buy_other, name='buy_other'),
+    path('lvlup_check', views.lvlup_check, name='lvlup_check'),
+    path('save_settings2/', views.save_settings2, name='save_settings2')
 ]

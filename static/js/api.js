@@ -143,4 +143,31 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".save-settings2", function () {
+        $('.save-settings2').prop('disabled', true);
+        $('.save-settings2').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+        var server_name = $("#server_name").val();
+        var server_id = $("#server_id").val();
+        var server_ip = $("#server_ip").val();
+        var rcon_password = $("#rcon_password").val();
+        $.ajax({
+            url: '/save_settings2/',
+            type: 'POST',
+            data: {server_name: server_name, server_id: server_id, server_ip: server_ip, rcon_password: rcon_password},
+            success: function (data) {
+                $("#rcon_password").val("");
+                $("#server_name").val(server_name);
+                $("#server_ip").val(server_ip);
+                toastr.success(data.message);
+                $('#settings2Modal').modal('hide');
+                $('.save-settings2').prop('disabled', false);
+                $('.save-settings2').html('Zapisz');
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.save-settings2').prop('disabled', false);
+                $('.save-settings2').html('Zapisz');
+            }
+        });
+    });
 });

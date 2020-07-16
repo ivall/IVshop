@@ -14,7 +14,7 @@ body {
 p {
     margin: 0;
 }
-.add-server-input, .select_payment_type, .add_product {
+.add-server-input, .select_payment_type, .add_product, .settings2 {
     width: 350px;
 }
 .shop-cards {
