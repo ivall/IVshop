@@ -14,5 +14,6 @@ urlpatterns = [
     path('buy_sms/', views.buy_sms, name='buy_sms'),
     path('buy_other/', views.buy_other, name='buy_other'),
     path('lvlup_check', views.lvlup_check, name='lvlup_check'),
-    path('save_settings2/', views.save_settings2, name='save_settings2')
+    path('save_settings2/', views.save_settings2, name='save_settings2'),
+    path('remove_product/', views.remove_product, name='remove_product')
 ]

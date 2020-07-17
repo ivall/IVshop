@@ -170,4 +170,22 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".remove_product", function () {
+        $(this).prop('disabled', true);
+        var product_id = $(this).attr('product_id');
+        $.ajax({
+            url: '/remove_product/',
+            type: 'POST',
+            data: {product_id: product_id},
+            success: function (data) {
+                toastr.success(data.message);
+                $('.product'+product_id).remove();
+                $('.remove_product').prop('disabled', false);
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.remove_product').prop('disabled', false);
+            }
+        });
+    });
 });

@@ -32,5 +32,8 @@ p {
     margin: 15px;
 }
 .custom-control {
-    margin-left: 0px;
+    margin-left: 0;
+}
+.productsDialog {
+    max-width: 650px;
 }

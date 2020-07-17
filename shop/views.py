@@ -99,10 +99,15 @@ def add_server(request):
 
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
+        counted_sells = {}
         counted_products = Product.objects.filter(server__id=server_id).count()
         purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
         purchases = Purchase.objects.filter(product__server__id=server_id)
         server = Server.objects.get(id=server_id)
+        products = Product.objects.filter(server__id=server_id)
+        for product in products:
+            count = Purchase.objects.filter(product_id=product.id, status=1).count()
+            counted_sells.update({str(product.id): count})
         context = {
             'server_id': server_id,
             'server_name': server.server_name,
@@ -110,7 +115,9 @@ def panel(request, server_id):
             'counted_products': counted_products,
             'purchases_count': purchases_count,
             'purchases': purchases,
-            'client_id': server.client_id
+            'client_id': server.client_id,
+            'products': products,
+            'counted_sells': counted_sells
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -133,6 +140,8 @@ def add_product(request):
         product_price = float(format(product_price, '.2f'))
         if not product_price > 0.99:
             return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
+        elif product_price > 999.99:
+            return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
         p = Product(
             product_name=request.POST.get("product_name"),
             product_description=request.POST.get("product_description"),
@@ -195,7 +204,7 @@ def buy_sms(request):
         rcon_password = check_product[0]['server__rcon_password']
         commands = check_product[0]['product_commands'].split(';')
         try:
-            send_commands(server_ip,rcon_password,commands,request.POST.get('player_nick'))
+            send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'))
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         p = Purchase(
@@ -242,7 +251,7 @@ def lvlup_check(request):
         rcon_password = check_payment[0]['product__server__rcon_password']
         commands = check_payment[0]['product__product_commands'].split(';')
         try:
-            send_commands(server_ip,rcon_password,commands,check_payment[0]['buyer'])
+            send_commands(server_ip, rcon_password, commands, check_payment[0]['buyer'])
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         Purchase.objects.filter(id=check_payment[0]['id']).update(status=1)
@@ -263,6 +272,18 @@ def save_settings2(request):
                 server_ip=request.POST.get("server_ip"),
                 rcon_password=request.POST.get("rcon_password"))
             return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
+        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika lub metodą.'}, status=401)
+
+
+@csrf_exempt
+def remove_product(request):
+    if 'username' in request.session and 'user_id' in request.session and request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        check_owner = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+        if check_owner:
+            Product.objects.filter(id=product_id).delete()
+            return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
     return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika lub metodą.'}, status=401)
 
