@@ -188,4 +188,46 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".open_edit_product_button", function () {
+        var product_id = $(this).attr('product_id');
+        $.ajax({
+            url: '/product_info/',
+            type: 'GET',
+            data: {product_id: product_id},
+            success: function (data) {
+                $('.edit_product_button').attr('product_id', product_id);
+                $('#edit_product_name').val(data.product_name);
+                $('#edit_product_description').val(data.product_description);
+                $('#edit_product_price').val(data.price);
+                $('#edit_product_sms_price').val(data.sms_number);
+                $('#edit_product_commands').val(data.commands);
+                $('#editProductModal').modal('show');
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
+    $(document).on("click", ".edit_product_button", function () {
+        var product_id = $(this).attr('product_id');
+        var product_name = $("#edit_product_name").val();
+        var product_description = $("#edit_product_description").val();
+        var product_price = $("#edit_product_price").val();
+        var product_sms_price = $("#edit_product_sms_price").val();
+        var product_commands = $("#edit_product_commands").val();
+        $.ajax({
+            url: '/add_product/',
+            type: 'POST',
+            data: {product_id: product_id, product_name: product_name, product_description: product_description,
+                   product_price: product_price, product_sms_price: product_sms_price,
+                   product_commands: product_commands, edit_mode: 'True'},
+            success: function (data) {
+                $('#editProductModal').modal('hide');
+                toastr.success(data.message)
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
 });

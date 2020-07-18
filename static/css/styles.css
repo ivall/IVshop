@@ -14,7 +14,11 @@ body {
 p {
     margin: 0;
 }
-.add-server-input, .select_payment_type, .add_product, .settings2 {
+.add-server-input,
+.select_payment_type,
+.add_product,
+.settings2,
+.edit_product {
     width: 350px;
 }
 .shop-cards {
@@ -36,4 +40,7 @@ p {
 }
 .productsDialog {
     max-width: 650px;
+}
+.remove_product {
+    margin-left: 15px;
 }

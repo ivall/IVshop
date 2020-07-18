@@ -9,7 +9,7 @@ from lvluppayments import Payments
 from mcrcon import MCRcon
 
 from shop.utils.oauth2 import Oauth
-from shop.utils.functions import authorize_panel, send_commands
+from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection
 from .models import Server, Product, Purchase
 
 import requests
@@ -74,11 +74,7 @@ def add_server(request):
             get_server_data = requests.get('https://api.mcsrvstat.us/2/' + request.POST.get("server_ip")).json()
             status = get_server_data["online"]
             if status:
-                try:
-                    mcr = MCRcon(request.POST.get("server_ip"), request.POST.get("rcon_password"))
-                    mcr.connect()
-                    mcr.disconnect()
-                except:
+                if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password")):
                     return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
                 i = Server(
                     server_name=request.POST.get("server_name"),
@@ -127,31 +123,45 @@ def panel(request, server_id):
 @csrf_exempt
 def add_product(request):
     if 'username' in request.session and 'user_id' in request.session and request.method == 'POST':
-        if not request.POST.get("server_id") or not request.POST.get("product_name") or not request.POST.get("product_description") or not request.POST.get("product_price") or not request.POST.get("product_sms_price") or not request.POST.get("product_commands"):
+        if not request.POST.get("product_name") or not request.POST.get(
+                "product_description") or not request.POST.get("product_price") or not request.POST.get(
+                "product_sms_price") or not request.POST.get("product_commands"):
             return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
-        check_payment_type = Server.objects.filter(owner_id=request.session['user_id'],
-                                                   id=request.POST.get('server_id')).values('payment_type')
-        if not check_payment_type:
-            return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
-        elif not check_payment_type[0]['payment_type']:
-            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności w ustawieniach.'},
-                                status=411)
+        if not request.POST.get('server_id') and not request.POST.get('edit_mode'):
+            return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
+        if request.POST.get('server_id'):
+            check_payment_type = Server.objects.filter(owner_id=request.session['user_id'],
+                                                       id=request.POST.get('server_id')).values('payment_type')
+            if not check_payment_type:
+                return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+            elif not check_payment_type[0]['payment_type']:
+                return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności w ustawieniach.'},
+                                    status=411)
         product_price = float(request.POST.get('product_price'))
         product_price = float(format(product_price, '.2f'))
         if not product_price > 0.99:
             return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
         elif product_price > 999.99:
             return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
-        p = Product(
-            product_name=request.POST.get("product_name"),
-            product_description=request.POST.get("product_description"),
-            server=Server.objects.get(id=request.POST.get("server_id")),
-            price=product_price,
-            sms_number=request.POST.get("product_sms_price"),
-            product_commands=request.POST.get("product_commands"),
-        )
-        p.save()
-        return JsonResponse({'message': 'Dodano produkt.'}, status=200)
+        if request.POST.get('edit_mode'):
+            Product.objects.filter(id=request.POST.get("product_id")).update(
+                product_name=request.POST.get("product_name"),
+                product_description=request.POST.get("product_description"),
+                price=request.POST.get("product_price"),
+                sms_number=request.POST.get("product_sms_price"),
+                product_commands=request.POST.get("product_commands"))
+            return JsonResponse({'message': 'Zapisano zmiany.'}, status=200)
+        else:
+            p = Product(
+                product_name=request.POST.get("product_name"),
+                product_description=request.POST.get("product_description"),
+                server=Server.objects.get(id=request.POST.get("server_id")),
+                price=product_price,
+                sms_number=request.POST.get("product_sms_price"),
+                product_commands=request.POST.get("product_commands"),
+            )
+            p.save()
+            return JsonResponse({'message': 'Dodano produkt.'}, status=200)
     return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika lub metodą.'}, status=401)
 
 
@@ -184,16 +194,22 @@ def shop(request, server_id):
     return render(request, 'shop.html', context=context)
 
 
-
 @csrf_exempt
 def buy_sms(request):
     if not request.POST.get('player_nick') or not request.POST.get('sms_code') or not request.method == "POST":
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
-    check_product = Product.objects.filter(id=request.POST.get("product_id"), sms_number=request.POST.get("sms_number")).values('server__client_id', 'server__server_ip', 'server__rcon_password', 'product_commands', 'server__server_status')
+    check_product = Product.objects.filter(id=request.POST.get("product_id"),
+                                           sms_number=request.POST.get("sms_number")).values('server__client_id',
+                                                                                             'server__server_ip',
+                                                                                             'server__rcon_password',
+                                                                                             'product_commands',
+                                                                                             'server__server_status')
     if not check_product:
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
     if check_product[0]['server__server_status'] == 0:
-        return JsonResponse({'message': 'Serwer jest aktualnie wyłączony, zachowaj kod i wykorzystaj go, gdy serwer będzie włączony.'}, status=411)
+        return JsonResponse(
+            {'message': 'Serwer jest aktualnie wyłączony, zachowaj kod i wykorzystaj go, gdy serwer będzie włączony.'},
+            status=411)
     number = request.POST.get("sms_number")
     code = request.POST.get('sms_code')
     client_id = check_product[0]['server__client_id']
@@ -222,7 +238,8 @@ def buy_sms(request):
 def buy_other(request):
     if not request.POST.get('product_id') or not request.POST.get('player_nick'):
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
-    api_key = Product.objects.filter(id=request.POST.get('product_id')).values('server__api_key', 'price', 'server__server_status')
+    api_key = Product.objects.filter(id=request.POST.get('product_id')).values('server__api_key', 'price',
+                                                                               'server__server_status')
     if api_key[0]['server__server_status'] == 0:
         return JsonResponse({'message': 'Serwer jest aktualnie wyłączony.'}, status=411)
     price = api_key[0]['price']
@@ -245,7 +262,10 @@ def lvlup_check(request):
     data = json.loads(request.body)
     paymentId = data['paymentId']
     status = data['status']
-    check_payment = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer', 'product__server__server_ip', 'product__server__rcon_password', 'product__product_commands')
+    check_payment = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
+                                                                       'product__server__server_ip',
+                                                                       'product__server__rcon_password',
+                                                                       'product__product_commands')
     if check_payment and status == 'CONFIRMED':
         server_ip = check_payment[0]['product__server__server_ip']
         rcon_password = check_payment[0]['product__server__rcon_password']
@@ -262,11 +282,13 @@ def lvlup_check(request):
 @csrf_exempt
 def save_settings2(request):
     if 'username' in request.session and 'user_id' in request.session and request.method == 'POST':
-        if not request.POST.get("server_id") or not request.POST.get("server_name") or not request.POST.get(
-                "server_ip") or not request.POST.get("rcon_password"):
+        if not request.POST.get("server_id") or not request.POST.get("server_name") \
+                or not request.POST.get("server_ip") or not request.POST.get("rcon_password"):
             return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
         authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
         if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
+            if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password")):
+                return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
             Server.objects.filter(id=request.POST.get("server_id")).update(
                 server_name=request.POST.get("server_name"),
                 server_ip=request.POST.get("server_ip"),
@@ -288,5 +310,18 @@ def remove_product(request):
     return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika lub metodą.'}, status=401)
 
 
-
-
+@csrf_exempt
+def product_info(request):
+    if 'username' in request.session:
+        product_id = request.GET.get('product_id')
+        product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+        if not product:
+            return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+        return JsonResponse({
+            'product_name': product[0].product_name,
+            'product_description': product[0].product_description,
+            'price': format(float(product[0].price), '.2f'),
+            'sms_number': product[0].sms_number,
+            'commands': product[0].product_commands
+        })
+    return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika.'}, status=401)

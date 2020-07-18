@@ -1,10 +1,8 @@
 import threading
-import requests
 from shop.models import Server
 from django.contrib import messages
 from django.shortcuts import redirect
 from mcrcon import MCRcon
-from django.http import JsonResponse
 import requests
 
 
@@ -14,6 +12,16 @@ def send_commands(server_ip, rcon_password, commands, buyer):
     for command in commands:
         mcr.command(command.replace("{PLAYER}", buyer))
     mcr.disconnect()
+
+
+def check_rcon_connection(server_ip, rcon_password):
+    try:
+        mcr = MCRcon(server_ip, rcon_password)
+        mcr.connect()
+        mcr.disconnect()
+        return True
+    except:
+        return False
 
 def authorize_panel(request, server_id):
     if 'user_id' not in request.session:

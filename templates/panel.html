@@ -234,14 +234,14 @@
                         <td>{{ product.product_name }}</td>
                         <td>{{ product.price|floatformat:2 }} PLN</td>
                         <td>{% change product.sms_number %}</td>
-                        <td>
-                            {% for cs in counted_sells.items %}
-                                {% if cs.0 == product.id|stringformat:"i" %}
-                                    {{ cs.1 }}
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
+                        <td>{% for cs in counted_sells.items %}{% if cs.0 == product.id|stringformat:"i" %}{{ cs.1 }}{% endif %}{% endfor %}</td>
+                          <td>
+                            <button class="open_edit_product_button btn btn-primary btn-sm" product_id="{{ product.id }}">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                </svg>
+                            </button>
                             <button class="remove_product btn btn-danger btn-sm" product_id="{{ product.id }}">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -256,6 +256,50 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Edit product modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editProductModalLabel">Edytuj produkt</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <div class="form-group col-md-6">
+                  <label for="edit_product_name" class="col-form-label">Nazwa produktu</label>
+                  <input type="text" name="edit_product_name" class="form-control edit_product" id="edit_product_name">
+                  <label for="edit_product_description" class="col-form-label">Opis produktu</label>
+                  <textarea name="edit_product_description" class="form-control edit_product" id="edit_product_description"></textarea>
+                  <label for="edit_product_price" class="col-form-label">Cena</label>
+                  <input type="number" name="edit_product_price" step="any" class="form-control edit_product" id="edit_product_price" placeholder="Format: 10.00">
+                  <label for="edit_product_sms_price">Cena SMS</label>
+                  <select class="custom-select" id="edit_product_sms_price">
+                      <option value="70068">0,62 PLN</option>
+                      <option value="7168">1,23 PLN</option>
+                      <option value="72068">2,46 PLN</option>
+                      <option value="73068">3,69 PLN</option>
+                      <option value="74068">4,92 PLN</option>
+                      <option value="75068">6,15 PLN</option>
+                      <option value="76068">7,38 PLN</option>
+                      <option value="79068">11,07 PLN</option>
+                      <option value="91068">12,30 PLN</option>
+                      <option value="91758">20,91 PLN</option>
+                      <option value="92578">30,75 PLN</option>
+                  </select>
+                  <label for="edit_product_commands" class="col-form-label">Komendy</label>
+                  <textarea name="edit_product_commands" class="form-control edit_product" id="edit_product_commands"></textarea>
+                  <label for="edit_product_commands" class="col-form-label" style="width: 200%;"><p>Komendy oddzielaj <b>średnikami</b>. Nick gracza to <b>{PLAYER}</b>.</p></label>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+            <button type="button" class="btn btn-primary edit_product_button">Zapisz</button>
           </div>
         </div>
       </div>
