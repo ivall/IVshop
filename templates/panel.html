@@ -39,6 +39,11 @@
             </div>
         </div>
         <div class="alert alert-light" role="alert">
+            <div class="text-center" style="width: 100%;">
+                <a href="" data-toggle="modal" data-target="#addVoucherModal">Dodaj nowy voucher</a>
+            </div>
+        </div>
+        <div class="alert alert-light" role="alert">
             <div class="text-center">
                 <a href="" data-toggle="modal" data-target="#paymentsHistoryModal">Lista zakupów</a>
             </div>
@@ -300,6 +305,35 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
             <button type="button" class="btn btn-primary edit_product_button">Zapisz</button>
+          </div>
+        </div>
+      </div>
+    </div>
+        <!-- Add voucher modal -->
+    <div class="modal fade" id="addVoucherModal" tabindex="-1" role="dialog" aria-labelledby="addVoucherModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addVoucherModalLabel">Dodaj nowy voucher</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <div class="form-group col-md-6">
+                  <label for="add_voucher_product">Produkt</label>
+                  <select class="custom-select" id="add_voucher_product">
+                      {% for product in products %}
+                        {% if product.server.id == server_id %}
+                            <option value="{{ product.id }}">{{ product.product_name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                  </select>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+            <button type="button" class="btn btn-primary edit_product_button">Wygeneruj</button>
           </div>
         </div>
       </div>

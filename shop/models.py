@@ -30,3 +30,10 @@ class Purchase(models.Model):
     lvlup_id = models.CharField(max_length=16)
     status = models.IntegerField()
     date = models.DateTimeField(default=timezone.localtime(timezone.now()), blank=True)
+
+
+class Voucher(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    code = models.CharField(max_length=8)
+    player = models.CharField(max_length=16)
+    status = models.BooleanField()
