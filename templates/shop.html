@@ -15,9 +15,26 @@
 <div class="text-center">
     <h1>{{ server.server_name }}</h1>
 </div>
-<div class="row shop-cards display-grid">
+<div class="own-container">
+    <div class="voucher">
+    <div class="card" style="width: 20rem;">
+      <div class="card-body">
+        <h4 class="card-title">Voucher</h4>
+        <div class="card-text">
+            <div class="form-group col-md-6">
+                  <label for="voucher_nick" class="col-form-label">Nick gracza</label>
+                  <input type="text" name="voucher_nick" class="form-control use_voucher" id="voucher_nick">
+                  <label for="voucher_code" class="col-form-label">Voucher</label>
+                  <input type="text" name="voucher_code" class="form-control use_voucher" id="voucher_code">
+              </div>
+        </div>
+        <a href="#" class="btn btn-primary use_voucher_button">Wykorzystaj</a>
+      </div>
+    </div>
+</div>
+<div class="shop-cards display-inline-flex">
 {% for product in products %}
-<div class="col card shop-card">
+<div class="card shop-card">
   <div class="card-body">
     <h4 class="card-title">{{ product.product_name }}</h4>
     <p class="card-text">
@@ -39,6 +56,9 @@
 </div>
 {% endfor %}
 </div>
+</div>
+
+
 
 {% if server.payment_type == 1 %}
 <!-- lvlup buy modal -->

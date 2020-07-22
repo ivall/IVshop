@@ -9,8 +9,8 @@ from lvluppayments import Payments
 from mcrcon import MCRcon
 
 from shop.utils.oauth2 import Oauth
-from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required
-from .models import Server, Product, Purchase
+from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, generate_random_chars
+from .models import Server, Product, Purchase, Voucher
 
 import requests
 
@@ -100,6 +100,7 @@ def panel(request, server_id):
         purchases = Purchase.objects.filter(product__server__id=server_id)
         server = Server.objects.get(id=server_id)
         products = Product.objects.filter(server__id=server_id)
+        vouchers = Voucher.objects.filter(product__server__id=server_id)
         for product in products:
             count = Purchase.objects.filter(product_id=product.id, status=1).count()
             counted_sells.update({str(product.id): count})
@@ -112,7 +113,8 @@ def panel(request, server_id):
             'purchases': purchases,
             'client_id': server.client_id,
             'products': products,
-            'counted_sells': counted_sells
+            'counted_sells': counted_sells,
+            'vouchers': vouchers
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -123,8 +125,8 @@ def panel(request, server_id):
 @login_required
 def add_product(request):
     if not request.POST.get("product_name") or not request.POST.get(
-            "product_description") or not request.POST.get("product_price") or not request.POST.get(
-            "product_sms_price") or not request.POST.get("product_commands"):
+            "product_description") or not request.POST.get("product_price") \
+            or not request.POST.get("product_sms_price") or not request.POST.get("product_commands"):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
     if not request.POST.get('server_id') and not request.POST.get('edit_mode'):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
@@ -319,3 +321,42 @@ def product_info(request):
         'sms_number': product[0].sms_number,
         'commands': product[0].product_commands
     })
+
+
+@csrf_exempt
+@login_required
+def generate_voucher(request):
+    product_id = request.POST.get('product_id')
+    product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+    if not product:
+        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    code = generate_random_chars(6)
+    v = Voucher(
+        product=Product.objects.get(id=product_id),
+        code=code,
+        status=0
+    )
+    v.save()
+    return JsonResponse({'message': 'Voucher został wygenerowany. Znajdziesz go w liście voucherów.'}, status=200)
+
+
+@csrf_exempt
+def use_voucher(request):
+    player_nick = request.POST.get('player_nick')
+    voucher_code = request.POST.get('voucher_code')
+    if not player_nick or not voucher_code:
+        return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+    get_command = Voucher.objects.filter(code=voucher_code, status=0).values('product__server__server_ip',
+                                                                   'product__server__rcon_password',
+                                                                   'product__product_commands')
+    if get_command:
+        server_ip = get_command[0]['product__server__server_ip']
+        rcon_password = get_command[0]['product__server__rcon_password']
+        commands = get_command[0]['product__product_commands'].split(';')
+        try:
+            send_commands(server_ip, rcon_password, commands, player_nick)
+        except:
+            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
+        Voucher.objects.filter(code=voucher_code).update(status=1, player=player_nick)
+        return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
+    return JsonResponse({'message': 'Niepoprawny kod'}, status=401)

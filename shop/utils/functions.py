@@ -2,9 +2,11 @@ import threading
 from shop.models import Server
 from django.http import JsonResponse
 from django.contrib import messages
-from django.shortcuts import redirect, HttpResponseRedirect
+from django.shortcuts import redirect
 from mcrcon import MCRcon
 import requests
+import random
+import string
 
 
 def login_required(function):
@@ -36,6 +38,10 @@ def check_rcon_connection(server_ip, rcon_password):
         return True
     except:
         return False
+
+
+def generate_random_chars(length):
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 @login_required

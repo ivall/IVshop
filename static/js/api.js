@@ -99,6 +99,9 @@ $(document).ready(function() {
             <label for="player_nick" class="col-form-label">Nick gracza</label>
             <input type="text" name="player_nick" class="form-control" id="player_nick">`)
         }
+        else {
+            toastr.warning('Wybierz rodzaj płatności.');
+        }
     });
     $(document).on("click", ".lvlup_sms_buy_button", function () {
         $(this).prop('disabled', true);
@@ -223,6 +226,36 @@ $(document).ready(function() {
                    product_commands: product_commands, edit_mode: 'True'},
             success: function (data) {
                 $('#editProductModal').modal('hide');
+                toastr.success(data.message)
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
+    $(document).on("click", ".generate_voucher_button", function () {
+        var product_id = $('#add_voucher_product').val();
+        $.ajax({
+            url: '/generate_voucher/',
+            type: 'POST',
+            data: {product_id: product_id},
+            success: function (data) {
+                $('#addVoucherModal').modal('hide');
+                toastr.success(data.message)
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
+    $(document).on("click", ".use_voucher_button", function () {
+        var player_nick = $('#voucher_nick').val();
+        var voucher_code = $('#voucher_code').val();
+        $.ajax({
+            url: '/use_voucher/',
+            type: 'POST',
+            data: {player_nick: player_nick, voucher_code: voucher_code},
+            success: function (data) {
                 toastr.success(data.message)
             },
             error: function (data) {

@@ -4,6 +4,9 @@ body {
 .display-grid {
     display: grid;
 }
+.display-inline-flex {
+    display: inline-flex;
+}
 .cards {
     margin-top: 30px;
 }
@@ -21,9 +24,14 @@ p {
 .edit_product {
     width: 350px;
 }
+.use_voucher {
+    width: 250px;
+}
 .shop-cards {
     justify-content: center;
-    width: 100%;
+    align-items: center;
+    flex-direction: column;
+    align-self: flex-start;
 }
 .shop-card {
     width: 50rem;
@@ -43,4 +51,19 @@ p {
 }
 .remove_product {
     margin-left: 15px;
+}
+.voucher {
+    display: inline-flex;
+    height: 410px;
+}
+.voucher .form-group {
+    padding: 0;
+}
+.own-container {
+    display: flex;
+    justify-content: center;
+    flex-flow: row-reverse;
+}
+.use_voucher_button {
+    float: right;
 }
