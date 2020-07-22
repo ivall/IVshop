@@ -18,5 +18,6 @@ urlpatterns = [
     path('remove_product/', views.remove_product, name='remove_product'),
     path('product_info/', views.product_info, name='product_info'),
     path('generate_voucher/', views.generate_voucher, name='generate_voucher'),
-    path('use_voucher/', views.use_voucher, name='use_voucher')
+    path('use_voucher/', views.use_voucher, name='use_voucher'),
+    path('success/', views.success_page, name='success_page')
 ]

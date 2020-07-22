@@ -4,9 +4,8 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from django.conf import settings
 from lvluppayments import Payments
-
-from mcrcon import MCRcon
 
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, generate_random_chars
@@ -242,10 +241,19 @@ def buy_other(request):
     if api_key[0]['server__server_status'] == 0:
         return JsonResponse({'message': 'Serwer jest aktualnie wyłączony.'}, status=411)
     price = api_key[0]['price']
-    payment = Payments(api_key[0]['server__api_key'], 'sandbox')
-    link = payment.create_payment(format(float(price), '.2f'), '', '')
-    url = link['url']
-    payment_id = link['id']
+    if settings.DEBUG:
+        payment = Payments(api_key[0]['server__api_key'], 'sandbox')
+    else:
+        payment = Payments(api_key[0]['server__api_key'], 'production')
+    domain = 'https://'+str(request.META['HTTP_HOST'])
+    success_page2 = str(domain)+"/success"
+    lvlup_check_page = str(domain)+"/lvlup_check"
+    link = payment.create_payment(format(float(price), '.2f'), success_page2, lvlup_check_page)
+    try:
+        url = link['url']
+        payment_id = link['id']
+    except:
+        return JsonResponse({'message': 'Wystąpił błąd, prawdopodobnie niepoprawny klucz api.'}, status=401)
     p = Purchase(
         lvlup_id=payment_id,
         buyer=request.POST.get("player_nick"),
@@ -360,3 +368,7 @@ def use_voucher(request):
         Voucher.objects.filter(code=voucher_code).update(status=1, player=player_nick)
         return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
     return JsonResponse({'message': 'Niepoprawny kod'}, status=401)
+
+
+def success_page(request):
+    return render(request, 'success.html')
