@@ -113,7 +113,9 @@ def panel(request, server_id):
             'client_id': server.client_id,
             'products': products,
             'counted_sells': counted_sells,
-            'vouchers': vouchers
+            'vouchers': vouchers,
+            'server_logo': server.logo,
+            'own_css': server.own_css
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -272,8 +274,13 @@ def lvlup_check(request):
     check_payment = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
                                                                        'product__server__server_ip',
                                                                        'product__server__rcon_password',
-                                                                       'product__product_commands')
-    if check_payment and status == 'CONFIRMED':
+                                                                       'product__product_commands',
+                                                                       'product__server__api_key')
+    if settings.DEBUG:
+        payment = Payments(str(check_payment[0]['product__server__api_key']), 'sandbox')
+    else:
+        payment = Payments(str(check_payment[0]['product__server__api_key']), 'production')
+    if check_payment and status == 'CONFIRMED' and payment.is_paid(str(paymentId)):
         server_ip = check_payment[0]['product__server__server_ip']
         rcon_password = check_payment[0]['product__server__rcon_password']
         commands = check_payment[0]['product__product_commands'].split(';')
@@ -372,3 +379,12 @@ def use_voucher(request):
 
 def success_page(request):
     return render(request, 'success.html')
+
+
+@csrf_exempt
+@login_required
+def customize_website(request):
+    Server.objects.filter(id=request.POST.get("server_id"),owner_id=request.session['user_id']).update(
+        logo=request.POST.get("server_logo"),
+        own_css=request.POST.get("own_css"))
+    return JsonResponse({'message': 'Zapisano.'}, status=200)

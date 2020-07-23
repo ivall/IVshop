@@ -10,32 +10,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
     <link rel="stylesheet" href="{% static 'css/shards.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% if server.own_css %}
+    <link rel="stylesheet" href="{{ server.own_css }}">
+    {% endif %}
 </head>
 <body>
 <div class="text-center">
+    {% if server.logo %}
+    <img src="{{ server.logo }}" alt="Logo serwera">
+    {% else %}
     <h1>{{ server.server_name }}</h1>
+    {% endif %}
 </div>
 <div class="own-container">
     <div class="voucher">
-    <div class="card" style="width: 20rem;">
-      <div class="card-body">
-        <h4 class="card-title">Voucher</h4>
-        <div class="card-text">
-            <div class="form-group col-md-6">
-                  <label for="voucher_nick" class="col-form-label">Nick gracza</label>
-                  <input type="text" name="voucher_nick" class="form-control use_voucher" id="voucher_nick">
-                  <label for="voucher_code" class="col-form-label">Voucher</label>
-                  <input type="text" name="voucher_code" class="form-control use_voucher" id="voucher_code">
-              </div>
+        <div class="card" style="width: 20rem;">
+          <div class="card-body">
+            <h4 class="card-title">Voucher</h4>
+            <div class="card-text">
+                <div class="form-group col-md-6">
+                      <label for="voucher_nick" class="col-form-label">Nick gracza</label>
+                      <input type="text" name="voucher_nick" class="form-control use_voucher" id="voucher_nick">
+                      <label for="voucher_code" class="col-form-label">Voucher</label>
+                      <input type="text" name="voucher_code" class="form-control use_voucher" id="voucher_code">
+                  </div>
+            </div>
+            <a href="#" class="btn btn-primary use_voucher_button">Wykorzystaj</a>
+          </div>
         </div>
-        <a href="#" class="btn btn-primary use_voucher_button">Wykorzystaj</a>
-      </div>
     </div>
-</div>
 <div class="shop-cards display-inline-flex">
 {% for product in products %}
 <div class="card shop-card">
-  <div class="card-body">
+  <div class="card-body product_body_text">
     <h4 class="card-title">{{ product.product_name }}</h4>
     <p class="card-text">
         {{ product.product_description }}

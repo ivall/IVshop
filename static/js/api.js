@@ -263,4 +263,20 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".castomize_site_button", function () {
+        var server_id = $('#server_id').val();
+        var server_logo = $('#server_logo_image').val();
+        var own_css = $('#server_own_css').val();
+        $.ajax({
+            url: '/customize_website/',
+            type: 'POST',
+            data: {server_id: server_id, server_logo: server_logo, own_css: own_css},
+            success: function (data) {
+                toastr.success(data.message)
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
 });

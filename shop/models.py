@@ -13,6 +13,8 @@ class Server(models.Model):
     payment_type = models.IntegerField(default=0)  # 0 - brak wyboru, 1 - lvlup v4
     api_key = models.CharField(max_length=126)
     client_id = models.CharField(max_length=126)
+    logo = models.URLField()
+    own_css = models.URLField()
 
 
 class Product(models.Model):

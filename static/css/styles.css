@@ -21,7 +21,8 @@ p {
 .select_payment_type,
 .add_product,
 .settings2,
-.edit_product {
+.edit_product,
+.castomization_site {
     width: 350px;
 }
 .use_voucher {
