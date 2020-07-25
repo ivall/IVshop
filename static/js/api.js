@@ -5,10 +5,11 @@ $(document).ready(function() {
         var server_name = $("#server-name").val();
         var server_ip = $("#server-ip").val();
         var rcon_password = $("#rcon-password").val();
+        var rcon_port = $("#rcon-port").val();
         $.ajax({
             url: '/add_server/',
             type: 'POST',
-            data: {server_name: server_name, server_ip: server_ip, rcon_password: rcon_password},
+            data: {server_name: server_name, server_ip: server_ip, rcon_password: rcon_password, rcon_port: rcon_port},
             success: function (data) {
                 $(".server-ip").val("");
                 toastr.success(data.message);
@@ -155,10 +156,11 @@ $(document).ready(function() {
         var server_id = $("#server_id").val();
         var server_ip = $("#server_ip").val();
         var rcon_password = $("#rcon_password").val();
+        var rcon_port = $("#rcon_port").val();
         $.ajax({
             url: '/save_settings2/',
             type: 'POST',
-            data: {server_name: server_name, server_id: server_id, server_ip: server_ip, rcon_password: rcon_password},
+            data: {server_name: server_name, server_id: server_id, server_ip: server_ip, rcon_password: rcon_password, rcon_port},
             success: function (data) {
                 $("#rcon_password").val("");
                 $("#server_name").val(server_name);

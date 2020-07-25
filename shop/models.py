@@ -6,6 +6,7 @@ class Server(models.Model):
     server_name = models.CharField(max_length=16)
     server_ip = models.CharField(max_length=32)
     rcon_password = models.CharField(max_length=100)
+    rcon_port = models.IntegerField()
     owner_id = models.IntegerField()
     server_version = models.CharField(max_length=50)
     server_status = models.BooleanField(default=True)

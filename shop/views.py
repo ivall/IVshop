@@ -12,13 +12,11 @@ from shop.utils.functions import authorize_panel, send_commands, check_rcon_conn
 from .models import Server, Product, Purchase, Voucher
 
 import requests
-
 """
 from shop.utils.functions import actualize_servers_data
 
 actualize_servers_data()
 """
-
 
 def index(request):
     if 'username' and 'user_id' in request.session:
@@ -70,19 +68,20 @@ def callback(request):
 @login_required
 def add_server(request):
     if not request.POST.get("server_name") or not request.POST.get("server_ip") or not request.POST.get(
-            "rcon_password"):
+            "rcon_password") or not request.POST.get("rcon_port"):
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
     check_server = Server.objects.filter(server_ip=request.POST.get("server_ip"))
     if not check_server:
         get_server_data = requests.get('https://api.mcsrvstat.us/2/' + request.POST.get("server_ip")).json()
         status = get_server_data["online"]
         if status:
-            if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password")):
+            if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password"), request.POST.get("rcon_port")):
                 return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
             i = Server(
                 server_name=request.POST.get("server_name"),
                 server_ip=request.POST.get("server_ip"),
                 rcon_password=request.POST.get("rcon_password"),
+                rcon_port=request.POST.get("rcon_port"),
                 owner_id=request.session['user_id'],
                 server_version=get_server_data["version"],
                 server_status=True,
@@ -119,7 +118,8 @@ def panel(request, server_id):
             'counted_sells': counted_sells,
             'vouchers': vouchers,
             'server_logo': server.logo,
-            'own_css': server.own_css
+            'own_css': server.own_css,
+            'rcon_port': server.rcon_port
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -207,7 +207,7 @@ def buy_sms(request):
                                                                                              'server__server_ip',
                                                                                              'server__rcon_password',
                                                                                              'product_commands',
-                                                                                             'server__server_status')
+                                                                                             'server__server_status', 'server__rcon_port')
     if not check_product:
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
     if check_product[0]['server__server_status'] == 0:
@@ -223,8 +223,9 @@ def buy_sms(request):
         server_ip = check_product[0]['server__server_ip']
         rcon_password = check_product[0]['server__rcon_password']
         commands = check_product[0]['product_commands'].split(';')
+        rcon_port = check_product[0]['server__rcon_port']
         try:
-            send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'))
+            send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'), rcon_port)
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         p = Purchase(
@@ -279,7 +280,7 @@ def lvlup_check(request):
                                                                        'product__server__server_ip',
                                                                        'product__server__rcon_password',
                                                                        'product__product_commands',
-                                                                       'product__server__api_key')
+                                                                       'product__server__api_key', 'product__server__rcon_port')
     if settings.DEBUG:
         payment = Payments(str(check_payment[0]['product__server__api_key']), 'sandbox')
     else:
@@ -288,8 +289,9 @@ def lvlup_check(request):
         server_ip = check_payment[0]['product__server__server_ip']
         rcon_password = check_payment[0]['product__server__rcon_password']
         commands = check_payment[0]['product__product_commands'].split(';')
+        rcon_port = check_payment[0]['product__server__rcon_port']
         try:
-            send_commands(server_ip, rcon_password, commands, check_payment[0]['buyer'])
+            send_commands(server_ip, rcon_password, commands, check_payment[0]['buyer'], rcon_port)
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         Purchase.objects.filter(id=check_payment[0]['id']).update(status=1)
@@ -301,16 +303,17 @@ def lvlup_check(request):
 @login_required
 def save_settings2(request):
     if not request.POST.get("server_id") or not request.POST.get("server_name") \
-            or not request.POST.get("server_ip") or not request.POST.get("rcon_password"):
+            or not request.POST.get("server_ip") or not request.POST.get("rcon_password") or not request.POST.get("rcon_port"):
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
     authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
     if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
-        if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password")):
+        if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password"), request.POST.get("rcon_port")):
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
         Server.objects.filter(id=request.POST.get("server_id")).update(
             server_name=request.POST.get("server_name"),
             server_ip=request.POST.get("server_ip"),
-            rcon_password=request.POST.get("rcon_password"))
+            rcon_password=request.POST.get("rcon_password"),
+            rcon_port=request.POST.get("rcon_port"))
         return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -367,13 +370,14 @@ def use_voucher(request):
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
     get_command = Voucher.objects.filter(code=voucher_code, status=0).values('product__server__server_ip',
                                                                    'product__server__rcon_password',
-                                                                   'product__product_commands')
+                                                                   'product__product_commands', 'product__server__rcon_port')
     if get_command:
         server_ip = get_command[0]['product__server__server_ip']
         rcon_password = get_command[0]['product__server__rcon_password']
         commands = get_command[0]['product__product_commands'].split(';')
+        rcon_port = get_command[0]['product__server__rcon_port']
         try:
-            send_commands(server_ip, rcon_password, commands, player_nick)
+            send_commands(server_ip, rcon_password, commands, player_nick, rcon_port)
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         Voucher.objects.filter(code=voucher_code).update(status=1, player=player_nick)

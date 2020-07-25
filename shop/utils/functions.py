@@ -22,21 +22,22 @@ def login_required(function):
     return wrapper
 
 
-def send_commands(server_ip, rcon_password, commands, buyer):
-    mcr = MCRcon(server_ip, rcon_password)
+def send_commands(server_ip, rcon_password, commands, buyer, rcon_port):
+    mcr = MCRcon(server_ip, rcon_password, int(rcon_port))
     mcr.connect()
     for command in commands:
         mcr.command(command.replace("{PLAYER}", buyer))
     mcr.disconnect()
 
 
-def check_rcon_connection(server_ip, rcon_password):
+def check_rcon_connection(server_ip, rcon_password, rcon_port):
     try:
-        mcr = MCRcon(server_ip, rcon_password)
+        mcr = MCRcon(server_ip, rcon_password, int(rcon_port))
         mcr.connect()
         mcr.disconnect()
         return True
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
