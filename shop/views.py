@@ -28,6 +28,10 @@ def index(request):
     return render(request, "index.html")
 
 
+def handler404(request, exception):
+    return render(request, '404.html', status=404)
+
+
 def login(request):
     if 'username' not in request.session:
         return redirect(Oauth.discord_login_url)

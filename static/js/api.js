@@ -83,13 +83,15 @@ $(document).ready(function() {
             $('#lvlup_modal').modal('show');
             $('.btn-success').addClass('lvlup_sms_buy_button');
             $('.modal-body').html(`
-            <p>Wyślij SMS na numer <b>`+sms_number+`</b> o treści <b>AP.HOSTMC</b></p>
+            <p>Wyślij SMS na numer <b>`+sms_number+`</b> o treści <b>AP.HOSTMC</b>. W odpowiedzi dostaniesz kod, który wpiszesz niżej.</p>
             <input type="hidden" id="product_id_modal" value="`+product_id+`">
             <input type="hidden" id="product_sms_number_modal" value="`+sms_number+`">
             <label for="player_nick" class="col-form-label">Nick gracza</label>
             <input type="text" name="player_nick" class="form-control" id="player_nick">
             <label for="sms_code" class="col-form-label">Kod SMS</label>
-            <input type="text" name="sms_code" class="form-control" id="sms_code">`)
+            <input type="text" name="sms_code" class="form-control" id="sms_code">
+            <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
+            <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
         }
         else if($('#other_lvlup'+product_id).is(':checked')) {
             $('#lvlup_modal').modal('show');

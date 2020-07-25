@@ -1,13 +1,19 @@
 import requests
+from django.conf import settings
 
 
 class Oauth(object):
+    def __init__(self):
+        redirect_uri = self.redirect_uri
     # must add your own client and secret id
     client_id = "727655489986625606"
     client_secret = "FTtwYvFWMt8G7I3TUjjG09T4YQeTh3QV"
     # from the dicord login url string
     scope = "identify"
-    redirect_uri = "http://127.0.0.1:8000/oauth_callback"
+    if settings.DEBUG:
+        redirect_uri = "http://127.0.0.1:8000/oauth_callback"
+    else:
+        redirect_uri = "https://ivshop.tk/oauth_callback"
     discord_login_url = "https://discordapp.com/api/oauth2/authorize?client_id={}&redirect_uri={}&response_type=code&scope={}".format(
         client_id, redirect_uri, scope)
     discord_token_url = "https://discordapp.com/api/oauth2/token"
