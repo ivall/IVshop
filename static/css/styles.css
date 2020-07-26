@@ -68,3 +68,37 @@ p {
 .use_voucher_button {
     float: right;
 }
+.widgets {
+    display: flex;
+    flex-flow: column;
+}
+.last_purchase_info span {
+    position: absolute;
+}
+.purchase {
+    display: inline-flex;
+}
+@media (max-width: 1224px) {
+    .own-container {
+        flex-flow: wrap-reverse;
+    }
+    .widgets {
+        flex-flow: row;
+    }
+}
+@media (max-width: 800px) {
+    .shop-cards {
+        width: 100%;
+    }
+    .shop-card {
+        width: 100%;
+    }
+    .widgets {
+        flex-flow: column;
+    }
+}
+@media (max-width: 780px) {
+    .shop-cards {
+        width: 100%;
+    }
+}

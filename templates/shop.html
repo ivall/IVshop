@@ -23,20 +23,41 @@
     {% endif %}
 </div>
 <div class="own-container">
-    <div class="voucher">
-        <div class="card" style="width: 20rem;">
-          <div class="card-body">
-            <h4 class="card-title">Voucher</h4>
-            <div class="card-text">
-                <div class="form-group col-md-6">
-                      <label for="voucher_nick" class="col-form-label">Nick gracza</label>
-                      <input type="text" name="voucher_nick" class="form-control use_voucher" id="voucher_nick">
-                      <label for="voucher_code" class="col-form-label">Voucher</label>
-                      <input type="text" name="voucher_code" class="form-control use_voucher" id="voucher_code">
-                  </div>
+    <div class="widgets">
+        <div class="voucher">
+            <div class="card" style="width: 20rem;">
+              <div class="card-body">
+                <h4 class="card-title">Voucher</h4>
+                <div class="card-text">
+                    <div class="form-group col-md-6">
+                          <label for="voucher_nick" class="col-form-label">Nick gracza</label>
+                          <input type="text" name="voucher_nick" class="form-control use_voucher" id="voucher_nick">
+                          <label for="voucher_code" class="col-form-label">Voucher</label>
+                          <input type="text" name="voucher_code" class="form-control use_voucher" id="voucher_code">
+                      </div>
+                </div>
+                <a href="#" class="btn btn-primary use_voucher_button">Wykorzystaj</a>
+              </div>
             </div>
-            <a href="#" class="btn btn-primary use_voucher_button">Wykorzystaj</a>
-          </div>
+        </div>
+        <div class="voucher">
+            <div class="card" style="width: 20rem;">
+              <div class="card-body">
+                <h4 class="card-title">Ostatni kupujący</h4>
+                <div class="card-text">
+                    {% for purchase in purchases %}
+                        <div class="purchase">
+                            <img src="https://minotar.net/avatar/{{ purchase.buyer }}/40" style="margin: 5px;" alt="Główka gracza {{ purchase.buyer }}">
+                            <div class="last_purchase_info">
+                                <span style=""><b>{{ purchase.buyer }}</b></span>
+                                <span style="margin-top: 22px;">{{ purchase.product.product_name }}</span>
+                            </div>
+                        </div>
+                        <br/>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
         </div>
     </div>
 <div class="shop-cards display-inline-flex">
