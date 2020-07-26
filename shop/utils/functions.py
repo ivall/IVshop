@@ -23,6 +23,7 @@ def login_required(function):
 
 
 def send_commands(server_ip, rcon_password, commands, buyer, rcon_port):
+    server_ip = str(server_ip).split(':')[0]
     mcr = MCRcon(server_ip, rcon_password, int(rcon_port))
     mcr.connect()
     for command in commands:
