@@ -116,8 +116,8 @@ STATIC_URL = '/static/'
 
 if not DEBUG:
     STATIC_ROOT = "/var/www/myproject/static/"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
-]
+else:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "static")
+    ]
 

@@ -191,7 +191,7 @@ def shop(request, server_id):
     except:
         return render(request, '404.html')
     products = Product.objects.filter(server__id=server_id)
-    purchases = Purchase.objects.filter(product__server__id=server_id).order_by('-id')[0:5]
+    purchases = Purchase.objects.filter(product__server__id=server_id, status=1).order_by('-id')[0:5]
     context = {
         'server': check_server_exists,
         'products': products,
