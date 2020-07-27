@@ -11,7 +11,7 @@ class Server(models.Model):
     server_version = models.CharField(max_length=50)
     server_status = models.BooleanField(default=True)
     server_players = models.CharField(max_length=10)
-    payment_type = models.IntegerField(default=0)  # 0 - brak wyboru, 1 - lvlup v4
+    payment_type = models.IntegerField(default=0)  # 0 - brak wyboru, 1 - lvlup v4, 2 - microsms
     api_key = models.CharField(max_length=126)
     client_id = models.CharField(max_length=126)
     logo = models.URLField()

@@ -83,13 +83,21 @@
               <div class="form-group col-md-6">
                   <label for="select_payment_type">Operator</label>
                   <select class="custom-select" id="select_payment_type">
-                    <option value="1" >Lvlup</option>
+                    <option value="1">Lvlup</option>
+                    <option value="2">Microsms</option>
                   </select>
-                  <input type="hidden" value="{{ server_id }}" id="server_id">
-                  <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
-                  <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
-                  <label for="lvlup_api_key" class="col-form-label">Klucz api</label>
-                  <input type="text" name="lvlup_api_key" class="form-control select_payment_type" id="lvlup_api_key">
+                  <div class="lvlup_selected">
+                      <input type="hidden" value="{{ server_id }}" id="server_id">
+                      <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
+                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
+                      <label for="lvlup_api_key" class="col-form-label">Klucz api</label>
+                      <input type="text" name="lvlup_api_key" class="form-control select_payment_type" id="lvlup_api_key">
+                  </div>
+                   <div class="microsms_selected" style="display: none;">
+                      <input type="hidden" value="{{ server_id }}" id="server_id">
+                      <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
+                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
+                  </div>
               </div>
           </div>
           <div class="modal-footer">
@@ -130,6 +138,7 @@
                       <option value="91068">12,30 PLN</option>
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
+                      <option value="0">Płatności SMS wyłączone</option>
                   </select>
                   <label for="product_commands" class="col-form-label">Komendy</label>
                   <textarea name="product_commands" class="form-control add_product" id="product_commands"></textarea>
@@ -308,6 +317,7 @@
                       <option value="91068">12,30 PLN</option>
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
+                      <option value="0">Płatności SMS wyłączone</option>
                   </select>
                   <label for="edit_product_commands" class="col-form-label">Komendy</label>
                   <textarea name="edit_product_commands" class="form-control edit_product" id="edit_product_commands"></textarea>

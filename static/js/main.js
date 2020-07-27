@@ -19,3 +19,14 @@ toastr.options = {
 $(function () {
   $('[data-toggle="tooltip"]').tooltip();
 });
+
+$('#select_payment_type').on('change', function() {
+  if (this.value == 1) {
+  	$('.lvlup_selected').css('display', 'block');
+	$('.microsms_selected').css('display', 'none');
+  }
+  else if (this.value == 2) {
+  	$('.lvlup_selected').css('display', 'none');
+  	$('.microsms_selected').css('display', 'block')
+  }
+});

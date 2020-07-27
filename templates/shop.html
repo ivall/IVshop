@@ -69,11 +69,13 @@
         {{ product.product_description }}
     </p>
     <div class="custom-controls-stacked" style="display: inline-flex;">
+        {% if product.sms_number != 0 %}
     <div class="custom-control custom-radio mb-3">
       <input type="hidden" id="sms_lvlup_number{{ product.id }}" value="{{ product.sms_number }}">
       <input type="radio" id="sms_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
       <label class="custom-control-label" for="sms_lvlup{{ product.id }}" id="sms_lvlup{{ product.id }}">SMS {% change product.sms_number %}</label>
     </div>
+        {% endif %}
         <div class="custom-control custom-radio mb-3">
       <input type="radio" id="other_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
       <label class="custom-control-label" for="other_lvlup{{ product.id }}" id="other_lvlup{{ product.id }}">inne {{ product.price|floatformat:2 }} PLN</label>
