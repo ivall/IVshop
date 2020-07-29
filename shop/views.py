@@ -368,9 +368,10 @@ def generate_voucher(request):
 def use_voucher(request):
     player_nick = request.POST.get('player_nick')
     voucher_code = request.POST.get('voucher_code')
-    if not player_nick or not voucher_code:
+    server_id = request.POST.get('server_id')
+    if not player_nick or not voucher_code or not server_id:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
-    get_command = Voucher.objects.filter(code=voucher_code, status=0).values('product__server__server_ip',
+    get_command = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values('product__server__server_ip',
                                                                    'product__server__rcon_password',
                                                                    'product__product_commands', 'product__server__rcon_port')
     if get_command:

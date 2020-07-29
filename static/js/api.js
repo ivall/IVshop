@@ -54,28 +54,53 @@ $(document).ready(function() {
     $(document).on("click", ".save-settings", function () {
         $('.save-settings').prop('disabled', true);
         $('.save-settings').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-        var payment_type = $("#select_payment_type").val();
         var server_id = $("#server_id").val();
-        var client_id = $("#lvlup_client_id").val();
-        var api_key = $("#lvlup_api_key").val();
-        $.ajax({
-            url: '/save_settings/',
-            type: 'POST',
-            data: {payment_type: payment_type, server_id: server_id, client_id: client_id, api_key: api_key},
-            success: function (data) {
-                $("#lvlup_client_id").val("");
-                $("#lvlup_api_key").val("");
-                toastr.success(data.message);
-                $('#settingsModal').modal('hide');
-                $('.save-settings').prop('disabled', false);
-                $('.save-settings').html('Zapisz');
-            },
-            error: function (data) {
-                toastr.error(data.responseJSON.message);
-                $('.save-settings').prop('disabled', false);
-                $('.save-settings').html('Zapisz');
-            }
-        });
+        var payment_type = $("#select_payment_type").val();
+        selected_operator = $('#select_payment_type').val();
+        if (selected_operator == 1) {
+            var client_id = $("#lvlup_client_id").val();
+            var api_key = $("#lvlup_api_key").val();
+            $.ajax({
+                url: '/save_settings/',
+                type: 'POST',
+                data: {payment_type: payment_type, server_id: server_id, client_id: client_id, api_key: api_key},
+                success: function (data) {
+                    $("#lvlup_client_id").val("");
+                    $("#lvlup_api_key").val("");
+                    toastr.success(data.message);
+                    $('#settingsModal').modal('hide');
+                    $('.save-settings').prop('disabled', false);
+                    $('.save-settings').html('Zapisz');
+                },
+                error: function (data) {
+                    toastr.error(data.responseJSON.message);
+                    $('.save-settings').prop('disabled', false);
+                    $('.save-settings').html('Zapisz');
+                }
+            });
+        }
+        else if (selected_operator == 2) {
+            var client_id = $("#microsms_client_id").val();
+            var microsms_service_id = $("#microsms_service_id").val();
+            $.ajax({
+                url: '/save_settings/',
+                type: 'POST',
+                data: {payment_type: payment_type, server_id: server_id, client_id: client_id, microsms_service_id: microsms_service_id},
+                success: function (data) {
+                    $("#microsms_client_id").val("");
+                    $("#microsms_service_id").val("");
+                    toastr.success(data.message);
+                    $('#settingsModal').modal('hide');
+                    $('.save-settings').prop('disabled', false);
+                    $('.save-settings').html('Zapisz');
+                },
+                error: function (data) {
+                    toastr.error(data.responseJSON.message);
+                    $('.save-settings').prop('disabled', false);
+                    $('.save-settings').html('Zapisz');
+                }
+            });
+        }
     });
     $(document).on("click", ".buy_button", function () {
         var product_id = $(this).attr('product_id');
@@ -255,10 +280,12 @@ $(document).ready(function() {
     $(document).on("click", ".use_voucher_button", function () {
         var player_nick = $('#voucher_nick').val();
         var voucher_code = $('#voucher_code').val();
+        var server_id = $('#server_id').val();
+        console.log(server_id);
         $.ajax({
             url: '/use_voucher/',
             type: 'POST',
-            data: {player_nick: player_nick, voucher_code: voucher_code},
+            data: {player_nick: player_nick, voucher_code: voucher_code, server_id: server_id},
             success: function (data) {
                 toastr.success(data.message)
             },

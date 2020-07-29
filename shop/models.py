@@ -14,8 +14,9 @@ class Server(models.Model):
     payment_type = models.IntegerField(default=0)  # 0 - brak wyboru, 1 - lvlup v4, 2 - microsms
     api_key = models.CharField(max_length=126)
     client_id = models.CharField(max_length=126)
-    logo = models.URLField()
-    own_css = models.URLField()
+    logo = models.URLField(blank=True)
+    own_css = models.URLField(blank=True)
+    microsms_service_id = models.IntegerField(default=0)
 
 
 class Product(models.Model):

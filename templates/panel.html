@@ -95,8 +95,10 @@
                   </div>
                    <div class="microsms_selected" style="display: none;">
                       <input type="hidden" value="{{ server_id }}" id="server_id">
-                      <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
-                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
+                      <label for="microsms_client_id" class="col-form-label">ID klienta</label>
+                      <input type="number" name="microsms_client_id" class="form-control select_payment_type" id="microsms_client_id" value="{{ client_id }}">
+                      <label for="microsms_service_id" class="col-form-label">ID usługi</label>
+                      <input type="number" name="microsms_service_id" class="form-control select_payment_type" id="microsms_service_id" value="{{ microsms_service_id }}">
                   </div>
               </div>
           </div>
@@ -259,7 +261,16 @@
                       <tr class="product{{ product.id }}">
                         <td>{{ product.product_name }}</td>
                         <td>{{ product.price|floatformat:2 }} PLN</td>
-                        <td>{% change product.sms_number %}</td>
+                        <td>
+                            {% if product.sms_number == 0 %}
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                                  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                                </svg>
+                            {% else %}
+                                {% change product.sms_number %}
+                            {% endif %}
+                        </td>
                         <td>{% for cs in counted_sells.items %}{% if cs.0 == product.id|stringformat:"i" %}{{ cs.1 }}{% endif %}{% endfor %}</td>
                           <td>
                             <button class="open_edit_product_button btn btn-primary btn-sm" product_id="{{ product.id }}">
