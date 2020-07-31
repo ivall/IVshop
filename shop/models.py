@@ -16,6 +16,7 @@ class Server(models.Model):
     client_id = models.CharField(max_length=126)
     logo = models.URLField(blank=True)
     own_css = models.URLField(blank=True)
+    microsms_sms_content = models.CharField(max_length=16)
     microsms_service_id = models.IntegerField(default=0)
 
 

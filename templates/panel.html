@@ -68,6 +68,11 @@
                 <a href="" data-toggle="modal" data-target="#settings2Modal">Ustawienia</a>
             </div>
         </div>
+        <div class="alert alert-dark" role="alert">
+            <div class="text-center">
+                <a href="https://paypal.me/ivallpl">Wesprzyj projekt</a>
+            </div>
+        </div>
     </div>
     <!-- Settings modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -83,22 +88,24 @@
               <div class="form-group col-md-6">
                   <label for="select_payment_type">Operator</label>
                   <select class="custom-select" id="select_payment_type">
-                    <option value="1">Lvlup</option>
-                    <option value="2">Microsms</option>
+                    <option value="1" {% if payment_type == 1 %}selected{% endif %}>Lvlup</option>
+                    <option value="2" {% if payment_type == 2 %}selected{% endif %}>Microsms</option>
                   </select>
-                  <div class="lvlup_selected">
+                  <div class="lvlup_selected" {% if payment_type != 1 %}style="display: none;"{% endif %}>
                       <input type="hidden" value="{{ server_id }}" id="server_id">
                       <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
-                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" value="{{ client_id }}">
+                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" {% if payment_type == 1 %}value="{{ client_id }}"{% endif %}>
                       <label for="lvlup_api_key" class="col-form-label">Klucz api</label>
                       <input type="text" name="lvlup_api_key" class="form-control select_payment_type" id="lvlup_api_key">
                   </div>
-                   <div class="microsms_selected" style="display: none;">
+                   <div class="microsms_selected" {% if payment_type != 2 %}style="display: none;"{% endif %}>
                       <input type="hidden" value="{{ server_id }}" id="server_id">
                       <label for="microsms_client_id" class="col-form-label">ID klienta</label>
-                      <input type="number" name="microsms_client_id" class="form-control select_payment_type" id="microsms_client_id" value="{{ client_id }}">
+                      <input type="number" name="microsms_client_id" class="form-control select_payment_type" id="microsms_client_id" {% if payment_type == 2 %}value="{{ client_id }}"{% endif %}>
                       <label for="microsms_service_id" class="col-form-label">ID usługi</label>
-                      <input type="number" name="microsms_service_id" class="form-control select_payment_type" id="microsms_service_id" value="{{ microsms_service_id }}">
+                      <input type="number" name="microsms_service_id" class="form-control select_payment_type" id="microsms_service_id" {% if payment_type == 2 %}value="{{ microsms_service_id }}"{% endif %}>
+                      <label for="microsms_sms_content" class="col-form-label">Treść SMS-a</label>
+                      <input type="text" name="microsms_sms_content" class="form-control select_payment_type" id="microsms_sms_content" {% if payment_type == 2 %}value="{{ microsms_sms_content }}"{% endif %}>
                   </div>
               </div>
           </div>
@@ -129,6 +136,7 @@
                   <input type="number" name="product_price" class="form-control add_product" id="product_price" placeholder="Format: 10.00">
                   <label for="product_sms_price">Cena SMS</label>
                   <select class="custom-select" id="product_sms_price">
+                      {% if payment_type == 1 %}
                       <option value="70068">0,62 PLN</option>
                       <option value="7168">1,23 PLN</option>
                       <option value="72068">2,46 PLN</option>
@@ -141,6 +149,19 @@
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
                       <option value="0">Płatności SMS wyłączone</option>
+                      {% elif payment_type == 2 %}
+                      <option value="71480">1,23 PLN</option>
+                      <option value="72480">2,46 PLN</option>
+                      <option value="73480">3,69 PLN</option>
+                      <option value="74480">4,92 PLN</option>
+                      <option value="75480">6,15 PLN</option>
+                      <option value="76480">7,38 PLN</option>
+                      <option value="79480">11,07 PLN</option>
+                      <option value="91400">17,22 PLN</option>
+                      <option value="91900">23,37 PLN</option>
+                      <option value="92022">24,60 PLN</option>
+                      <option value="92521">30,75 PLN</option>
+                      {% endif %}
                   </select>
                   <label for="product_commands" class="col-form-label">Komendy</label>
                   <textarea name="product_commands" class="form-control add_product" id="product_commands"></textarea>
@@ -317,6 +338,7 @@
                   <input type="number" name="edit_product_price" step="any" class="form-control edit_product" id="edit_product_price" placeholder="Format: 10.00">
                   <label for="edit_product_sms_price">Cena SMS</label>
                   <select class="custom-select" id="edit_product_sms_price">
+                      {% if payment_type == 1 %}
                       <option value="70068">0,62 PLN</option>
                       <option value="7168">1,23 PLN</option>
                       <option value="72068">2,46 PLN</option>
@@ -329,6 +351,19 @@
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
                       <option value="0">Płatności SMS wyłączone</option>
+                      {% elif payment_type == 2 %}
+                      <option value="71480">1,23 PLN</option>
+                      <option value="72480">2,46 PLN</option>
+                      <option value="73480">3,69 PLN</option>
+                      <option value="74480">4,92 PLN</option>
+                      <option value="75480">6,15 PLN</option>
+                      <option value="76480">7,38 PLN</option>
+                      <option value="79480">11,07 PLN</option>
+                      <option value="91400">17,22 PLN</option>
+                      <option value="91900">23,37 PLN</option>
+                      <option value="92022">24,60 PLN</option>
+                      <option value="92521">30,75 PLN</option>
+                      {% endif %}
                   </select>
                   <label for="edit_product_commands" class="col-form-label">Komendy</label>
                   <textarea name="edit_product_commands" class="form-control edit_product" id="edit_product_commands"></textarea>

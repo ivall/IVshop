@@ -1,5 +1,6 @@
 {% load static %}
 {% load change from number_to_price %}
+{% load change2 from number_to_price %}
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -70,17 +71,25 @@
         {{ product.product_description }}
     </p>
     <div class="custom-controls-stacked" style="display: inline-flex;">
-        {% if product.sms_number != 0 %}
-    <div class="custom-control custom-radio mb-3">
-      <input type="hidden" id="sms_lvlup_number{{ product.id }}" value="{{ product.sms_number }}">
-      <input type="radio" id="sms_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
-      <label class="custom-control-label" for="sms_lvlup{{ product.id }}" id="sms_lvlup{{ product.id }}">SMS {% change product.sms_number %}</label>
-    </div>
-        {% endif %}
+    {% if product.server.payment_type == 1 %}
+            {% if product.sms_number != 0 %}
         <div class="custom-control custom-radio mb-3">
-      <input type="radio" id="other_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
-      <label class="custom-control-label" for="other_lvlup{{ product.id }}" id="other_lvlup{{ product.id }}">inne {{ product.price|floatformat:2 }} PLN</label>
-    </div>
+          <input type="hidden" id="sms_lvlup_number{{ product.id }}" value="{{ product.sms_number }}">
+          <input type="radio" id="sms_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
+          <label class="custom-control-label" for="sms_lvlup{{ product.id }}" id="sms_lvlup{{ product.id }}">SMS {% change product.sms_number %}</label>
+        </div>
+            {% endif %}
+            <div class="custom-control custom-radio mb-3">
+          <input type="radio" id="other_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
+          <label class="custom-control-label" for="other_lvlup{{ product.id }}" id="other_lvlup{{ product.id }}">inne {{ product.price|floatformat:2 }} PLN</label>
+        </div>
+    {% elif product.server.payment_type == 2 %}
+        <div class="custom-control custom-radio mb-3">
+          <input type="hidden" id="sms_microsms_number{{ product.id }}" value="{{ product.sms_number }}">
+          <input type="radio" id="sms_microsms{{ product.id }}" name="customRadio" class="custom-control-input">
+          <label class="custom-control-label" for="sms_microsms{{ product.id }}" id="sms_microsms{{ product.id }}">SMS {% change2 product.sms_number %}</label>
+        </div>
+    {% endif %}
     </div>
     <button class="btn btn-primary buy_button" product_id="{{ product.id }}">Kup</button>
   </div>
@@ -89,8 +98,7 @@
 </div>
 </div>
 
-
-
+<input type="hidden" id="payment_type" value="{{ server.payment_type }}">
 {% if server.payment_type == 1 %}
 <!-- lvlup buy modal -->
 <div class="modal fade" id="lvlup_modal" tabindex="-1" role="dialog" aria-labelledby="lvlup_modal_label" aria-hidden="true">
@@ -98,6 +106,28 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="lvlup_modal_label">Zakup produkt</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+        <button type="button" class="btn btn-success">Kup</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% elif server.payment_type == 2 %}
+<input type="hidden" id="sms_microsms_content" value="{{ server.microsms_sms_content }}">
+<!-- microsms buy modal -->
+<div class="modal fade" id="microsms_modal" tabindex="-1" role="dialog" aria-labelledby="microsms_modal_label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="microsms_modal_label">Zakup produkt</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

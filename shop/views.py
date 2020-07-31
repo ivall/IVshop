@@ -119,7 +119,10 @@ def panel(request, server_id):
             'vouchers': vouchers,
             'server_logo': server.logo,
             'own_css': server.own_css,
-            'rcon_port': server.rcon_port
+            'rcon_port': server.rcon_port,
+            'microsms_service_id': server.microsms_service_id,
+            'microsms_sms_content': server.microsms_sms_content,
+            'payment_type': server.payment_type
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -173,14 +176,25 @@ def add_product(request):
 @csrf_exempt
 @login_required
 def save_settings(request):
-    if not request.POST.get("server_id") or not request.POST.get("client_id") or not request.POST.get(
-            "api_key") or request.POST.get("payment_type") != "1":
-        return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
+    if request.POST.get("payment_type") == "1":
+        if not request.POST.get("client_id") or not request.POST.get("api_key"):
+            return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
+    else:
+        if not request.POST.get("client_id") or not request.POST.get("microsms_service_id") or not request.POST.get("microsms_sms_content"):
+            return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
     authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
     if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
-        Server.objects.filter(id=request.POST.get("server_id")).update(
-            payment_type=request.POST.get("payment_type"),
-            api_key=request.POST.get("api_key"), client_id=request.POST.get("client_id"))
+        if request.POST.get("payment_type") == "1":
+            Server.objects.filter(id=request.POST.get("server_id")).update(
+                payment_type=request.POST.get("payment_type"),
+                api_key=request.POST.get("api_key"),
+                client_id=request.POST.get("client_id"))
+        else:
+            Server.objects.filter(id=request.POST.get("server_id")).update(
+                payment_type=request.POST.get("payment_type"),
+                microsms_service_id=request.POST.get("microsms_service_id"),
+                client_id=request.POST.get("client_id"),
+                microsms_sms_content=request.POST.get("microsms_sms_content"))
         return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -209,7 +223,8 @@ def buy_sms(request):
                                                                                              'server__server_ip',
                                                                                              'server__rcon_password',
                                                                                              'product_commands',
-                                                                                             'server__server_status', 'server__rcon_port')
+                                                                                             'server__server_status', 'server__rcon_port',
+                                                                                             'server__microsms_service_id')
     if not check_product:
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
     if check_product[0]['server__server_status'] == 0:
@@ -219,26 +234,38 @@ def buy_sms(request):
     number = request.POST.get("sms_number")
     code = request.POST.get('sms_code')
     client_id = check_product[0]['server__client_id']
-    url = f"https://lvlup.pro/api/checksms?id={client_id}&code={code}&number={number}&desc=[IVshop] Zarobek z itemshopu"
-    r = requests.get(url).json()
-    if r['valid']:
-        server_ip = check_product[0]['server__server_ip']
-        rcon_password = check_product[0]['server__rcon_password']
-        commands = check_product[0]['product_commands'].split(';')
-        rcon_port = check_product[0]['server__rcon_port']
-        try:
-            send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'), rcon_port)
-        except:
-            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
-        p = Purchase(
-            lvlup_id="sms",
-            buyer=request.POST.get("player_nick"),
-            product=Product.objects.get(id=request.POST.get("product_id")),
-            status=1,
-        )
-        p.save()
-        return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
-    return JsonResponse({'message': 'Niepoprawny kod SMS.'}, status=401)
+    if request.POST.get("payment_type") == "1":
+        url = f"https://lvlup.pro/api/checksms?id={client_id}&code={code}&number={number}&desc=[IVshop] Zarobek z itemshopu"
+        r = requests.get(url).json()
+        if r['valid']:
+            server_ip = check_product[0]['server__server_ip']
+            rcon_password = check_product[0]['server__rcon_password']
+            commands = check_product[0]['product_commands'].split(';')
+            rcon_port = check_product[0]['server__rcon_port']
+            try:
+                send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'), rcon_port)
+            except:
+                return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
+            p = Purchase(
+                lvlup_id="sms",
+                buyer=request.POST.get("player_nick"),
+                product=Product.objects.get(id=request.POST.get("product_id")),
+                status=1,
+            )
+            p.save()
+            return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
+        return JsonResponse({'message': 'Niepoprawny kod SMS.'}, status=401)
+    elif request.POST.get("payment_type") == "2":
+        service_id = check_product[0]['server__microsms_service_id']
+        url = f'https://microsms.pl/api/check_multi.php?userid={client_id}&code={code}&serviceid={service_id}'
+        r = requests.get(url)
+        payment_status = r.text
+        if "E,2" in payment_status:
+            return JsonResponse({'message': 'Brak partnera lub usługi.'}, status=401)
+        elif "E,3" in payment_status:
+            return JsonResponse({'message': 'Niepoprawny numer SMS.'}, status=401)
+        elif "E,2" in payment_status:
+            return JsonResponse({'message': 'Niepoprawny format kodu.'}, status=401)
 
 
 @csrf_exempt
