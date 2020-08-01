@@ -13,7 +13,7 @@ class Oauth(object):
     if settings.DEBUG:
         redirect_uri = "http://127.0.0.1:8000/oauth_callback"
     else:
-        redirect_uri = "https://ivshop.tk/oauth_callback"
+        redirect_uri = "https://ivshop.pl/oauth_callback"
     discord_login_url = "https://discordapp.com/api/oauth2/authorize?client_id={}&redirect_uri={}&response_type=code&scope={}".format(
         client_id, redirect_uri, scope)
     discord_token_url = "https://discordapp.com/api/oauth2/token"
