@@ -118,13 +118,15 @@ $(document).ready(function() {
                 <input type="text" name="sms_code" class="form-control" id="sms_code">
                 <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
                 <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
+                $(".btn-success").removeClass("lvlup_other_buy_button");
             } else if ($('#other_lvlup' + product_id).is(':checked')) {
                 $('#lvlup_modal').modal('show');
                 $('.btn-success').addClass('lvlup_other_buy_button');
                 $('.modal-body').html(`
                 <input type="hidden" id="product_id_modal" value="` + product_id + `">
                 <label for="player_nick" class="col-form-label">Nick gracza</label>
-                <input type="text" name="player_nick" class="form-control" id="player_nick">`)
+                <input type="text" name="player_nick" class="form-control" id="player_nick">`);
+                $(".btn-success").removeClass("lvlup_sms_buy_button");
             } else {
                 toastr.warning('Wybierz rodzaj płatności.');
             }
