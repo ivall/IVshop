@@ -259,13 +259,32 @@ def buy_sms(request):
         service_id = check_product[0]['server__microsms_service_id']
         url = f'https://microsms.pl/api/check_multi.php?userid={client_id}&code={code}&serviceid={service_id}'
         r = requests.get(url)
-        payment_status = r.text
-        if "E,2" in payment_status:
+        payment_status = r.text.strip()
+        if payment_status == "E,2":
             return JsonResponse({'message': 'Brak partnera lub usługi.'}, status=401)
-        elif "E,3" in payment_status:
+        elif payment_status == "E,3":
             return JsonResponse({'message': 'Niepoprawny numer SMS.'}, status=401)
-        elif "E,2" in payment_status:
+        elif payment_status == "E,2":
             return JsonResponse({'message': 'Niepoprawny format kodu.'}, status=401)
+        elif payment_status[0] == "0":
+            return JsonResponse({'message': 'Niepoprawny kod SMS.'}, status=401)
+        elif payment_status[0] == "1":
+            server_ip = check_product[0]['server__server_ip']
+            rcon_password = check_product[0]['server__rcon_password']
+            commands = check_product[0]['product_commands'].split(';')
+            rcon_port = check_product[0]['server__rcon_port']
+            try:
+                send_commands(server_ip, rcon_password, commands, request.POST.get('player_nick'), rcon_port)
+            except:
+                return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
+            p = Purchase(
+                lvlup_id="microsms",
+                buyer=request.POST.get("player_nick"),
+                product=Product.objects.get(id=request.POST.get("product_id")),
+                status=1,
+            )
+            p.save()
+            return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
 
 @csrf_exempt
