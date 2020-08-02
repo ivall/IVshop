@@ -18,6 +18,7 @@ class Server(models.Model):
     own_css = models.URLField(blank=True)
     microsms_sms_content = models.CharField(max_length=16)
     microsms_service_id = models.IntegerField(default=0)
+    shop_style = models.CharField(max_length=5, default="light")
 
 
 class Product(models.Model):

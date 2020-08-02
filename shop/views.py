@@ -12,11 +12,11 @@ from shop.utils.functions import authorize_panel, send_commands, check_rcon_conn
 from .models import Server, Product, Purchase, Voucher
 
 import requests
-"""
-from shop.utils.functions import actualize_servers_data
 
-actualize_servers_data()
-"""
+if not settings.DEBUG:
+    from shop.utils.functions import actualize_servers_data
+    actualize_servers_data()
+
 
 def index(request):
     if 'username' and 'user_id' in request.session:
@@ -443,5 +443,6 @@ def success_page(request):
 def customize_website(request):
     Server.objects.filter(id=request.POST.get("server_id"),owner_id=request.session['user_id']).update(
         logo=request.POST.get("server_logo"),
-        own_css=request.POST.get("own_css"))
+        own_css=request.POST.get("own_css"),
+        shop_style=request.POST.get("shop_style"))
     return JsonResponse({'message': 'Zapisano.'}, status=200)

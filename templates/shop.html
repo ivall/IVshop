@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
     <link rel="stylesheet" href="{% static 'css/shards.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% if server.shop_style == "dark" %}
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}">
+    {% endif %}
     {% if server.own_css %}
     <link rel="stylesheet" href="{{ server.own_css }}">
     {% endif %}
