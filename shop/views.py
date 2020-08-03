@@ -153,7 +153,7 @@ def add_product(request):
     elif product_price > 999.99:
         return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
     if request.POST.get('edit_mode'):
-        Product.objects.filter(id=request.POST.get("product_id")).update(
+        Product.objects.select_for_update().filter(id=request.POST.get("product_id")).update(
             product_name=request.POST.get("product_name"),
             product_description=request.POST.get("product_description"),
             price=request.POST.get("product_price"),
@@ -185,12 +185,12 @@ def save_settings(request):
     authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
     if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
         if request.POST.get("payment_type") == "1":
-            Server.objects.filter(id=request.POST.get("server_id")).update(
+            Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
                 payment_type=request.POST.get("payment_type"),
                 api_key=request.POST.get("api_key"),
                 client_id=request.POST.get("client_id"))
         else:
-            Server.objects.filter(id=request.POST.get("server_id")).update(
+            Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
                 payment_type=request.POST.get("payment_type"),
                 microsms_service_id=request.POST.get("microsms_service_id"),
                 client_id=request.POST.get("client_id"),
@@ -357,7 +357,7 @@ def save_settings2(request):
     if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
         if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password"), request.POST.get("rcon_port")):
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
-        Server.objects.filter(id=request.POST.get("server_id")).update(
+        Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
             server_name=request.POST.get("server_name"),
             server_ip=request.POST.get("server_ip"),
             rcon_password=request.POST.get("rcon_password"),
@@ -420,7 +420,7 @@ def use_voucher(request):
     get_command = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values('product__server__server_ip',
                                                                    'product__server__rcon_password',
                                                                    'product__product_commands', 'product__server__rcon_port')
-    if get_command:
+    if get_command.exists():
         server_ip = get_command[0]['product__server__server_ip']
         rcon_password = get_command[0]['product__server__rcon_password']
         commands = get_command[0]['product__product_commands'].split(';')
@@ -441,7 +441,7 @@ def success_page(request):
 @csrf_exempt
 @login_required
 def customize_website(request):
-    Server.objects.filter(id=request.POST.get("server_id"),owner_id=request.session['user_id']).update(
+    Server.objects.select_for_update().filter(id=request.POST.get("server_id"),owner_id=request.session['user_id']).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"))
