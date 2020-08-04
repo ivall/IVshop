@@ -67,31 +67,34 @@ def callback(request):
 @csrf_exempt
 @login_required
 def add_server(request):
-    if not request.POST.get("server_name") or not request.POST.get("server_ip") or not request.POST.get(
-            "rcon_password") or not request.POST.get("rcon_port"):
+    server_name = request.POST.get("server_name")
+    server_ip = request.POST.get("server_ip")
+    rcon_password = request.POST.get("rcon_password")
+    rcon_port = request.POST.get("rcon_port")
+    if not server_name or not server_ip or not rcon_password or not rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
-    check_server = Server.objects.filter(server_ip=request.POST.get("server_ip"))
-    if not check_server:
-        get_server_data = requests.get('https://api.mcsrvstat.us/2/' + request.POST.get("server_ip")).json()
-        status = get_server_data["online"]
-        if status:
-            if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password"), request.POST.get("rcon_port")):
-                return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
-            i = Server(
-                server_name=request.POST.get("server_name"),
-                server_ip=request.POST.get("server_ip"),
-                rcon_password=request.POST.get("rcon_password"),
-                rcon_port=request.POST.get("rcon_port"),
-                owner_id=request.session['user_id'],
-                server_version=get_server_data["version"],
-                server_status=True,
-                server_players=str(get_server_data["players"]["online"]) + '/' + str(
-                    get_server_data["players"]["max"])
-            )
-            i.save()
-            return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
+
+    get_server_data = requests.get('https://api.mcsrvstat.us/2/' + server_ip).json()
+    status = get_server_data["online"]
+    if not status:
         return JsonResponse({'message': 'Serwer jest wyłączony.'}, status=400)
-    return JsonResponse({'message': 'Serwer z takim ip jest już dodany.'}, status=409)
+    if not check_rcon_connection(server_ip, rcon_password, rcon_port):
+        return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
+
+    i = Server(
+        server_name=server_name,
+        server_ip=server_ip,
+        rcon_password=rcon_password,
+        rcon_port=rcon_port,
+        owner_id=request.session['user_id'],
+        server_version=get_server_data["version"],
+        server_status=True,
+        server_players=str(get_server_data["players"]["online"]) + '/' + str(
+            get_server_data["players"]["max"])
+    )
+    i.save()
+    return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
+
 
 
 def panel(request, server_id):
@@ -132,42 +135,47 @@ def panel(request, server_id):
 @csrf_exempt
 @login_required
 def add_product(request):
-    if not request.POST.get("product_name") or not request.POST.get(
-            "product_description") or not request.POST.get("product_price") \
-            or not request.POST.get("product_sms_price") or not request.POST.get("product_commands"):
+    server_id = request.POST.get("server_id")
+    product_name = request.POST.get("product_name")
+    product_description = request.POST.get("product_description")
+    product_price = request.POST.get("product_price")
+    product_sms_price = request.POST.get("product_sms_price")
+    product_commands = request.POST.get("product_commands")
+    if not product_name or not product_description or not product_price or not product_sms_price or not product_commands:
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
     if not request.POST.get('server_id') and not request.POST.get('edit_mode'):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
-    if request.POST.get('server_id'):
-        check_payment_type = Server.objects.filter(owner_id=request.session['user_id'],
-                                                   id=request.POST.get('server_id')).values('payment_type')
+
+    if server_id:
+        check_payment_type = Server.objects.filter(owner_id=request.session['user_id'], id=server_id).values('payment_type')
         if not check_payment_type:
             return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
         elif not check_payment_type[0]['payment_type']:
-            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności w ustawieniach.'},
-                                status=411)
+            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności w ustawieniach.'}, status=411)
+
     product_price = float(request.POST.get('product_price'))
     product_price = float(format(product_price, '.2f'))
     if not product_price > 0.99:
         return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
     elif product_price > 999.99:
         return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
+
     if request.POST.get('edit_mode'):
         Product.objects.select_for_update().filter(id=request.POST.get("product_id")).update(
-            product_name=request.POST.get("product_name"),
-            product_description=request.POST.get("product_description"),
-            price=request.POST.get("product_price"),
-            sms_number=request.POST.get("product_sms_price"),
-            product_commands=request.POST.get("product_commands"))
+            product_name=product_name,
+            product_description=product_description,
+            price=product_price,
+            sms_number=product_sms_price,
+            product_commands=product_commands)
         return JsonResponse({'message': 'Zapisano zmiany.'}, status=200)
     else:
         p = Product(
-            product_name=request.POST.get("product_name"),
-            product_description=request.POST.get("product_description"),
-            server=Server.objects.get(id=request.POST.get("server_id")),
+            product_name=product_name,
+            product_description=product_description,
+            server=Server.objects.get(id=server_id),
             price=product_price,
-            sms_number=request.POST.get("product_sms_price"),
-            product_commands=request.POST.get("product_commands"),
+            sms_number=product_sms_price,
+            product_commands=product_commands,
         )
         p.save()
         return JsonResponse({'message': 'Dodano produkt.'}, status=200)
@@ -350,20 +358,28 @@ def lvlup_check(request):
 @csrf_exempt
 @login_required
 def save_settings2(request):
-    if not request.POST.get("server_id") or not request.POST.get("server_name") \
-            or not request.POST.get("server_ip") or not request.POST.get("rcon_password") or not request.POST.get("rcon_port"):
+    server_id = request.POST.get("server_id")
+    server_name = request.POST.get("server_name")
+    server_ip = request.POST.get("server_ip")
+    server_rcon_password = request.POST.get("rcon_password")
+    server_rcon_port = request.POST.get("rcon_port")
+    if not server_id or not server_name or not server_ip or not server_rcon_password or not server_rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
-    authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
-    if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
-        if not check_rcon_connection(request.POST.get("server_ip"), request.POST.get("rcon_password"), request.POST.get("rcon_port")):
-            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
-        Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
-            server_name=request.POST.get("server_name"),
-            server_ip=request.POST.get("server_ip"),
-            rcon_password=request.POST.get("rcon_password"),
-            rcon_port=request.POST.get("rcon_port"))
-        return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
-    return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+
+    authorize_user = Server.objects.filter(id=server_id).values('owner_id')
+
+    if not authorize_user.exists() and not str(authorize_user[0]['owner_id']) == request.session['user_id']:
+        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    if not check_rcon_connection(server_ip, server_rcon_password, server_rcon_port):
+        return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
+
+    authorize_user.update(
+        server_name=server_name,
+        server_ip=server_ip,
+        rcon_password=server_rcon_password,
+        rcon_port=server_rcon_port)
+    return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
+
 
 
 @csrf_exempt

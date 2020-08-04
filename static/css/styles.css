@@ -4,6 +4,9 @@ body {
 .display-grid {
     display: grid;
 }
+.server_logo h1 {
+    margin: 30px 0 30px;
+}
 .display-inline-flex {
     display: inline-flex;
 }
@@ -12,7 +15,7 @@ body {
 }
 .card {
     flex: auto;
-    margin: 30px;
+    margin: 17px;
 }
 p {
     margin: 0;
@@ -37,9 +40,17 @@ p {
 .shop-card {
     width: 50rem;
 }
+.shop-card .card-title, .shop-card .card-text {
+    text-align: center;
+}
+.shop-card .payment_methods {
+    display: flex;
+    justify-content: center;
+}
 .buy_button {
     float: right;
     color: #fff;
+    margin-top: -45px;
 }
 .custom-control {
     margin: 15px;
@@ -55,7 +66,6 @@ p {
 }
 .voucher {
     display: inline-flex;
-    height: 410px;
 }
 .voucher .form-group {
     padding: 0;
