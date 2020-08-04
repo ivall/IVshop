@@ -332,25 +332,26 @@ def lvlup_check(request):
     data = json.loads(request.body)
     paymentId = data['paymentId']
     status = data['status']
-    check_payment = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
+    purchase = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
                                                                        'product__server__server_ip',
                                                                        'product__server__rcon_password',
                                                                        'product__product_commands',
                                                                        'product__server__api_key', 'product__server__rcon_port')
     if settings.DEBUG:
-        payment = Payments(str(check_payment[0]['product__server__api_key']), 'sandbox')
+        payment = Payments(str(purchase[0]['product__server__api_key']), 'sandbox')
     else:
-        payment = Payments(str(check_payment[0]['product__server__api_key']), 'production')
-    if check_payment and status == 'CONFIRMED' and payment.is_paid(str(paymentId)):
-        server_ip = check_payment[0]['product__server__server_ip']
-        rcon_password = check_payment[0]['product__server__rcon_password']
-        commands = check_payment[0]['product__product_commands'].split(';')
-        rcon_port = check_payment[0]['product__server__rcon_port']
+        payment = Payments(str(purchase[0]['product__server__api_key']), 'production')
+
+    if purchase.exists() and status == 'CONFIRMED' and payment.is_paid(str(paymentId)):
+        server_ip = purchase[0]['product__server__server_ip']
+        rcon_password = purchase[0]['product__server__rcon_password']
+        commands = purchase[0]['product__product_commands'].split(';')
+        rcon_port = purchase[0]['product__server__rcon_port']
         try:
-            send_commands(server_ip, rcon_password, commands, check_payment[0]['buyer'], rcon_port)
+            send_commands(server_ip, rcon_password, commands, purchase[0]['buyer'], rcon_port)
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
-        Purchase.objects.filter(id=check_payment[0]['id']).update(status=1)
+        purchase.update(status=1)
         return JsonResponse({'message': 'Udało się.'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
 
@@ -366,14 +367,14 @@ def save_settings2(request):
     if not server_id or not server_name or not server_ip or not server_rcon_password or not server_rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
 
-    authorize_user = Server.objects.filter(id=server_id).values('owner_id')
+    server = Server.objects.filter(id=server_id).values('owner_id')
 
-    if not authorize_user.exists() and not str(authorize_user[0]['owner_id']) == request.session['user_id']:
+    if not server.exists() or not str(server[0]['owner_id']) == request.session['user_id']:
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
     if not check_rcon_connection(server_ip, server_rcon_password, server_rcon_port):
         return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
 
-    authorize_user.update(
+    server.update(
         server_name=server_name,
         server_ip=server_ip,
         rcon_password=server_rcon_password,
@@ -386,11 +387,13 @@ def save_settings2(request):
 @login_required
 def remove_product(request):
     product_id = request.POST.get('product_id')
-    check_owner = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
-    if check_owner:
-        Product.objects.filter(id=product_id).delete()
-        return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
-    return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    product_to_delete = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+    if not product_to_delete.exists():
+        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+
+    product_to_delete.delete()
+    return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
+
 
 
 @csrf_exempt
@@ -398,8 +401,9 @@ def remove_product(request):
 def product_info(request):
     product_id = request.GET.get('product_id')
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
-    if not product:
+    if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+
     return JsonResponse({
         'product_name': product[0].product_name,
         'product_description': product[0].product_description,
@@ -414,8 +418,9 @@ def product_info(request):
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
-    if not product:
+    if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+
     code = generate_random_chars(6)
     v = Voucher(
         product=Product.objects.get(id=product_id),
@@ -433,21 +438,25 @@ def use_voucher(request):
     server_id = request.POST.get('server_id')
     if not player_nick or not voucher_code or not server_id:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
-    get_command = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values('product__server__server_ip',
+
+    voucher = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values('product__server__server_ip',
                                                                    'product__server__rcon_password',
                                                                    'product__product_commands', 'product__server__rcon_port')
-    if get_command.exists():
-        server_ip = get_command[0]['product__server__server_ip']
-        rcon_password = get_command[0]['product__server__rcon_password']
-        commands = get_command[0]['product__product_commands'].split(';')
-        rcon_port = get_command[0]['product__server__rcon_port']
-        try:
-            send_commands(server_ip, rcon_password, commands, player_nick, rcon_port)
-        except:
-            return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
-        Voucher.objects.filter(code=voucher_code).update(status=1, player=player_nick)
-        return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
-    return JsonResponse({'message': 'Niepoprawny kod'}, status=401)
+    if not voucher.exists():
+        return JsonResponse({'message': 'Niepoprawny kod'}, status=401)
+
+    server_ip = voucher[0]['product__server__server_ip']
+    rcon_password = voucher[0]['product__server__rcon_password']
+    commands = voucher[0]['product__product_commands'].split(';')
+    rcon_port = voucher[0]['product__server__rcon_port']
+    try:
+        send_commands(server_ip, rcon_password, commands, player_nick, rcon_port)
+    except:
+        return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
+
+    voucher.update(status=1, player=player_nick)
+    return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
+
 
 
 def success_page(request):
@@ -457,7 +466,8 @@ def success_page(request):
 @csrf_exempt
 @login_required
 def customize_website(request):
-    Server.objects.select_for_update().filter(id=request.POST.get("server_id"),owner_id=request.session['user_id']).update(
+    server_id = request.POST.get("server_id")
+    Server.objects.select_for_update().filter(id=server_id, owner_id=request.session['user_id']).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"))
