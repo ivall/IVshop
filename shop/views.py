@@ -96,7 +96,6 @@ def add_server(request):
     return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
 
 
-
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
         counted_sells = {}
@@ -141,6 +140,7 @@ def add_product(request):
     product_price = request.POST.get("product_price")
     product_sms_price = request.POST.get("product_sms_price")
     product_commands = request.POST.get("product_commands")
+    product_image = request.POST.get("product_image")
     if not product_name or not product_description or not product_price or not product_sms_price or not product_commands:
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
     if not request.POST.get('server_id') and not request.POST.get('edit_mode'):
@@ -166,7 +166,8 @@ def add_product(request):
             product_description=product_description,
             price=product_price,
             sms_number=product_sms_price,
-            product_commands=product_commands)
+            product_commands=product_commands,
+            product_image=product_image)
         return JsonResponse({'message': 'Zapisano zmiany.'}, status=200)
     else:
         p = Product(
@@ -176,7 +177,7 @@ def add_product(request):
             price=product_price,
             sms_number=product_sms_price,
             product_commands=product_commands,
-        )
+            product_image=product_image)
         p.save()
         return JsonResponse({'message': 'Dodano produkt.'}, status=200)
 
@@ -409,7 +410,8 @@ def product_info(request):
         'product_description': product[0].product_description,
         'price': format(float(product[0].price), '.2f'),
         'sms_number': product[0].sms_number,
-        'commands': product[0].product_commands
+        'commands': product[0].product_commands,
+        'product_image': product[0].product_image
     })
 
 

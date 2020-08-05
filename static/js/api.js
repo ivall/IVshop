@@ -33,11 +33,12 @@ $(document).ready(function() {
         var product_price = $("#product_price").val();
         var product_sms_price = $("#product_sms_price").val();
         var product_commands = $("#product_commands").val();
+        var product_image = $("#product_image").val();
         $.ajax({
             url: '/add_product/',
             type: 'POST',
             data: {product_name: product_name, server_id: server_id, product_description: product_description,
-                product_price: product_price, product_sms_price: product_sms_price, product_commands: product_commands},
+                product_price: product_price, product_sms_price: product_sms_price, product_commands: product_commands, product_image: product_image},
             success: function (data) {
                 toastr.success(data.message);
                 $('#addProductModal').modal('hide');
@@ -280,6 +281,7 @@ $(document).ready(function() {
                 $('#edit_product_price').val(data.price);
                 $('#edit_product_sms_price').val(data.sms_number);
                 $('#edit_product_commands').val(data.commands);
+                $('#edit_product_image').val(data.product_image);
                 $('#editProductModal').modal('show');
             },
             error: function (data) {
@@ -294,12 +296,13 @@ $(document).ready(function() {
         var product_price = $("#edit_product_price").val();
         var product_sms_price = $("#edit_product_sms_price").val();
         var product_commands = $("#edit_product_commands").val();
+        var product_image = $("#edit_product_image").val();
         $.ajax({
             url: '/add_product/',
             type: 'POST',
             data: {product_id: product_id, product_name: product_name, product_description: product_description,
                    product_price: product_price, product_sms_price: product_sms_price,
-                   product_commands: product_commands, edit_mode: 'True'},
+                   product_commands: product_commands, product_image: product_image, edit_mode: 'True'},
             success: function (data) {
                 $('#editProductModal').modal('hide');
                 toastr.success(data.message)

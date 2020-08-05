@@ -46,11 +46,11 @@ p {
 .shop-card .payment_methods {
     display: flex;
     justify-content: center;
+    margin-top: -25px;
 }
 .buy_button {
     float: right;
     color: #fff;
-    margin-top: -45px;
 }
 .custom-control {
     margin: 15px;
@@ -88,6 +88,13 @@ p {
 .purchase {
     display: inline-flex;
 }
+.product_img {
+    width: 180px;
+    position: absolute;
+    align-self: flex-start;
+    margin: 15px;
+    border-radius: 0;
+}
 @media (max-width: 1224px) {
     .own-container {
         flex-flow: wrap-reverse;
@@ -110,5 +117,12 @@ p {
 @media (max-width: 780px) {
     .shop-cards {
         width: 100%;
+    }
+    .product_img {
+        position: relative;
+        align-self: center;
+    }
+    .shop-card .card-text {
+        margin-left: 0 !important;
     }
 }

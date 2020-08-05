@@ -68,9 +68,12 @@
 <div class="shop-cards display-inline-flex">
 {% for product in products %}
 <div class="card shop-card">
+  {% if product.product_image %}
+      <img class="card-img product_img" src="{{ product.product_image }}">
+  {% endif %}
   <div class="card-body product_body_text">
     <h4 class="card-title">{{ product.product_name }}</h4>
-    <p class="card-text">
+    <p class="card-text" {% if product.product_image and product.product_description|length > 60 %}style="margin-left: 170px;"{% endif %}>
         {{ product.product_description }}
     </p>
     <div class="payment_methods">

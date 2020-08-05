@@ -28,7 +28,7 @@ class Product(models.Model):
     price = models.CharField(max_length=10)
     sms_number = models.IntegerField()
     product_commands = models.CharField(max_length=2000)
-    product_image = models.URLField()
+    product_image = models.URLField(blank=True, default="")
 
 
 class Purchase(models.Model):
