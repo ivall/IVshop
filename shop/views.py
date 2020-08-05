@@ -109,7 +109,7 @@ def panel(request, server_id):
             count = Purchase.objects.filter(product_id=product.id, status=1).count()
             counted_sells.update({str(product.id): count})
         context = {
-            'server_id': server_id,
+            'server_id': server_id,  # Wiem, że rak, do zmiany xD
             'server_name': server.server_name,
             'server_ip': server.server_ip,
             'counted_products': counted_products,
@@ -263,7 +263,7 @@ def buy_sms(request):
         p = Purchase(
             lvlup_id="sms",
             buyer=player_nick,
-            product=product,
+            product=Product.objects.get(id=product_id),
             status=1,
         )
         p.save()
@@ -295,7 +295,7 @@ def buy_sms(request):
             p = Purchase(
                 lvlup_id="microsms",
                 buyer=player_nick,
-                product=product,
+                product=Product.objects.get(id=product_id),
                 status=1,
             )
             p.save()
