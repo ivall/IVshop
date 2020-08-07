@@ -21,12 +21,19 @@ $(function () {
 });
 
 $('#select_payment_type').on('change', function() {
-  if (this.value == 1) {
-  	$('.lvlup_selected').css('display', 'block');
-	$('.microsms_selected').css('display', 'none');
+  if (this.value == 'lvlup_sms') {
+  	$('.lvlup_sms_selected').css('display', 'block');
+  	$('.lvlup_other_selected').css('display', 'none');
+	$('.microsms_sms_selected').css('display', 'none');
   }
-  else if (this.value == 2) {
-  	$('.lvlup_selected').css('display', 'none');
-  	$('.microsms_selected').css('display', 'block')
+  else if (this.value == 'lvlup_other') {
+  	$('.lvlup_sms_selected').css('display', 'none');
+  	$('.lvlup_other_selected').css('display', 'block');
+	$('.microsms_sms_selected').css('display', 'none');
+  }
+  else if (this.value == 'microsms_sms') {
+  	$('.lvlup_sms_selected').css('display', 'none');
+  	$('.lvlup_other_selected').css('display', 'none');
+	$('.microsms_sms_selected').css('display', 'block');
   }
 });

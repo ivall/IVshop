@@ -126,3 +126,7 @@ p {
         margin-left: 0 !important;
     }
 }
+.landing_page_paragraph {
+    margin-left: 15px;
+    margin-bottom: 20px;
+}

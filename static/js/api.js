@@ -52,51 +52,61 @@ $(document).ready(function() {
             }
         });
     });
-    $(document).on("click", ".save-settings", function () {
-        $('.save-settings').prop('disabled', true);
-        $('.save-settings').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+    $(document).on("click", ".add_payment_operator", function () {
+        $(this).prop('disabled', true);
+        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         var server_id = $("#server_id").val();
-        var payment_type = $("#select_payment_type").val();
         selected_operator = $('#select_payment_type').val();
-        if (selected_operator == 1) {
+        if (selected_operator == 'lvlup_sms') {
+            var operator_name = $("#lvlup_sms_operator_name").val();
             var client_id = $("#lvlup_client_id").val();
-            var api_key = $("#lvlup_api_key").val();
             $.ajax({
-                url: '/save_settings/',
+                url: '/add_operator/lvlup_sms',
                 type: 'POST',
-                data: {payment_type: payment_type, server_id: server_id, client_id: client_id, api_key: api_key},
-                success: function (data) {
-                    $("#lvlup_api_key").val("");
-                    toastr.success(data.message);
-                    $('#settingsModal').modal('hide');
-                    $('.save-settings').prop('disabled', false);
-                    $('.save-settings').html('Zapisz');
+                data: {server_id: server_id, operator_name: operator_name, client_id: client_id},
+                success: function () {
+                    location.reload(true);
                 },
                 error: function (data) {
                     toastr.error(data.responseJSON.message);
-                    $('.save-settings').prop('disabled', false);
-                    $('.save-settings').html('Zapisz');
+                    $('.add_payment_operator').prop('disabled', false);
+                    $('.add_payment_operator').html('Dodaj');
                 }
             });
         }
-        else if (selected_operator == 2) {
-            var client_id = $("#microsms_client_id").val();
-            var microsms_service_id = $("#microsms_service_id").val();
-            var microsms_sms_content = $("#microsms_sms_content").val();
+        else if (selected_operator == 'lvlup_other') {
+            var operator_name = $("#lvlup_other_operator_name").val();
+            var api_key = $('#lvlup_api_key').val();
             $.ajax({
-                url: '/save_settings/',
+                url: '/add_operator/lvlup_other',
                 type: 'POST',
-                data: {payment_type: payment_type, server_id: server_id, client_id: client_id, microsms_service_id: microsms_service_id, microsms_sms_content: microsms_sms_content},
-                success: function (data) {
-                    toastr.success(data.message);
-                    $('#settingsModal').modal('hide');
-                    $('.save-settings').prop('disabled', false);
-                    $('.save-settings').html('Zapisz');
+                data: {server_id: server_id, operator_name: operator_name, api_key: api_key},
+                success: function () {
+                    location.reload(true);
                 },
                 error: function (data) {
                     toastr.error(data.responseJSON.message);
-                    $('.save-settings').prop('disabled', false);
-                    $('.save-settings').html('Zapisz');
+                    $('.add_payment_operator').prop('disabled', false);
+                    $('.add_payment_operator').html('Dodaj');
+                }
+            });
+        }
+        else if (selected_operator == 'microsms_sms') {
+            var operator_name = $("#microsms_sms_operator_name").val();
+            var client_id = $('#microsms_client_id').val();
+            var service_id = $('#microsms_service_id').val();
+            var sms_content = $('#microsms_sms_content').val();
+            $.ajax({
+                url: '/add_operator/microsms_sms',
+                type: 'POST',
+                data: {server_id: server_id, operator_name: operator_name, client_id: client_id, service_id: service_id, sms_content: sms_content},
+                success: function () {
+                    location.reload(true);
+                },
+                error: function (data) {
+                    toastr.error(data.responseJSON.message);
+                    $('.add_payment_operator').prop('disabled', false);
+                    $('.add_payment_operator').html('Dodaj');
                 }
             });
         }
@@ -265,6 +275,22 @@ $(document).ready(function() {
             error: function (data) {
                 toastr.error(data.responseJSON.message);
                 $('.remove_product').prop('disabled', false);
+            }
+        });
+    });
+    $(document).on("click", ".remove_payment_operator", function () {
+        $(this).prop('disabled', true);
+        var operator_id = $(this).attr('operator_id');
+        $.ajax({
+            url: '/remove_payment_operator/',
+            type: 'POST',
+            data: {operator_id: operator_id},
+            success: function () {
+                location.reload();
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.remove_payment_operator').prop('disabled', false);
             }
         });
     });

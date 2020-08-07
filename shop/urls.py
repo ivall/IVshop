@@ -9,7 +9,7 @@ urlpatterns = [
     path('add_server/', views.add_server, name='add_server'),
     path('panel/<int:server_id>/', views.panel, name='panel'),
     path('add_product/', views.add_product, name='add_product'),
-    path('save_settings/', views.save_settings, name='save_settings'),
+    path('add_operator/<operator_type>', views.add_operator, name='add_operator'),
     path('shop/<int:server_id>/', views.shop, name='shop'),
     path('buy_sms/', views.buy_sms, name='buy_sms'),
     path('buy_other/', views.buy_other, name='buy_other'),
@@ -20,5 +20,6 @@ urlpatterns = [
     path('generate_voucher/', views.generate_voucher, name='generate_voucher'),
     path('use_voucher/', views.use_voucher, name='use_voucher'),
     path('success/', views.success_page, name='success_page'),
-    path('customize_website/', views.customize_website, name='customize_website')
+    path('customize_website/', views.customize_website, name='customize_website'),
+    path('remove_payment_operator/', views.remove_payment_operator, name='remove_payment_operator')
 ]

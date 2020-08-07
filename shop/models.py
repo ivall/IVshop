@@ -11,14 +11,31 @@ class Server(models.Model):
     server_version = models.CharField(max_length=50)
     server_status = models.BooleanField(default=True)
     server_players = models.CharField(max_length=10)
-    payment_type = models.IntegerField(default=0)  # 0 - brak wyboru, 1 - lvlup v4, 2 - microsms
-    api_key = models.CharField(max_length=126)
-    client_id = models.CharField(max_length=126)
     logo = models.URLField(blank=True)
     own_css = models.URLField(blank=True)
-    microsms_sms_content = models.CharField(max_length=16)
-    microsms_service_id = models.IntegerField(default=0)
     shop_style = models.CharField(max_length=5, default="light")
+
+
+"""
+Lista operatorów płatności:
+- lvlup_sms
+- lvlup_other
+_ microsms_sms
+"""
+
+
+class PaymentOperator(models.Model):
+    operator_name = models.CharField(max_length=20)
+    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    operator_type = models.CharField(max_length=20)  # Na przykład lvlup_sms albo microsms_sms
+    """
+    Opcjonalne, na przykład dla microsms_sms wymagane jest 
+    client_id, service_id, sms_content, a dla lvlup_sms tylko client_id
+    """
+    client_id = models.IntegerField(blank=True, null=True)
+    api_key = models.CharField(max_length=64, blank=True, null=True)
+    service_id = models.IntegerField(blank=True, null=True)
+    sms_content = models.CharField(max_length=16, blank=True, null=True)
 
 
 class Product(models.Model):

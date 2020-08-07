@@ -55,7 +55,12 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="" data-toggle="modal" data-target="#settingsModal">Operator płatności</a>
+                <a href="" data-toggle="modal" data-target="#addOperatorModal">Dodaj operatora płatności</a>
+            </div>
+        </div>
+        <div class="alert alert-light" role="alert">
+            <div class="text-center">
+                <a href="" data-toggle="modal" data-target="#paymentOperatorsModal">Operatorzy płatności</a>
             </div>
         </div>
         <div class="alert alert-light" role="alert">
@@ -75,11 +80,11 @@
         </div>
     </div>
     <!-- Settings modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addOperatorModal" tabindex="-1" role="dialog" aria-labelledby="addOperatorModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="settingsModalLabel">Operator płatności</h5>
+            <h5 class="modal-title" id="addOperatorModalLabel">Dodaj operatora płatności</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -88,30 +93,40 @@
               <div class="form-group col-md-6">
                   <label for="select_payment_type">Operator</label>
                   <select class="custom-select" id="select_payment_type">
-                    <option value="1" {% if payment_type == 1 %}selected{% endif %}>Lvlup</option>
-                    <option value="2" {% if payment_type == 2 %}selected{% endif %}>Microsms</option>
+                    {% if 'lvlup_sms' not in assigned_operators %}<option value="lvlup_sms">Lvlup smsy</option>{% endif %}
+                    {% if 'lvlup_other' not in assigned_operators %}<option value="lvlup_other">Lvlup przelewy, pp, psc</option>{% endif %}
+                    {% if 'microsms_sms' not in assigned_operators %}<option value="microsms_sms">Microsms smsy</option>{% endif %}
                   </select>
-                  <div class="lvlup_selected" {% if payment_type != 1 %}style="display: none;"{% endif %}>
+                  <div class="lvlup_sms_selected" style="display: none;">
                       <input type="hidden" value="{{ server_id }}" id="server_id">
+                      <label for="operator_name" class="col-form-label">Nazwa płatności</label>
+                      <input type="text" name="operator_name" class="form-control select_payment_type" id="lvlup_sms_operator_name" placeholder="np. SMS">
                       <label for="lvlup_client_id" class="col-form-label">ID klienta</label>
-                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id" {% if payment_type == 1 %}value="{{ client_id }}"{% endif %}>
+                      <input type="number" name="lvlup_client_id" class="form-control select_payment_type" id="lvlup_client_id">
+                  </div>
+                  <div class="lvlup_other_selected" style="display: none;">
+                      <input type="hidden" value="{{ server_id }}" id="server_id">
+                      <label for="operator_name" class="col-form-label">Nazwa płatności</label>
+                      <input type="text" name="operator_name" class="form-control select_payment_type" id="lvlup_other_operator_name" placeholder="np. SMS">
                       <label for="lvlup_api_key" class="col-form-label">Klucz api</label>
                       <input type="text" name="lvlup_api_key" class="form-control select_payment_type" id="lvlup_api_key">
                   </div>
-                   <div class="microsms_selected" {% if payment_type != 2 %}style="display: none;"{% endif %}>
+                   <div class="microsms_sms_selected" style="display: none;">
                       <input type="hidden" value="{{ server_id }}" id="server_id">
+                      <label for="operator_name" class="col-form-label">Nazwa płatności</label>
+                      <input type="text" name="operator_name" class="form-control select_payment_type" id="microsms_sms_operator_name" placeholder="np. SMS">
                       <label for="microsms_client_id" class="col-form-label">ID klienta</label>
-                      <input type="number" name="microsms_client_id" class="form-control select_payment_type" id="microsms_client_id" {% if payment_type == 2 %}value="{{ client_id }}"{% endif %}>
+                      <input type="number" name="microsms_client_id" class="form-control select_payment_type" id="microsms_client_id">
                       <label for="microsms_service_id" class="col-form-label">ID usługi</label>
-                      <input type="number" name="microsms_service_id" class="form-control select_payment_type" id="microsms_service_id" {% if payment_type == 2 %}value="{{ microsms_service_id }}"{% endif %}>
+                      <input type="number" name="microsms_service_id" class="form-control select_payment_type" id="microsms_service_id">
                       <label for="microsms_sms_content" class="col-form-label">Treść SMS-a</label>
-                      <input type="text" name="microsms_sms_content" class="form-control select_payment_type" id="microsms_sms_content" {% if payment_type == 2 %}value="{{ microsms_sms_content }}"{% endif %}>
+                      <input type="text" name="microsms_sms_content" class="form-control select_payment_type" id="microsms_sms_content">
                   </div>
               </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
-            <button type="button" class="btn btn-primary save-settings">Zapisz</button>
+            <button type="button" class="btn btn-primary add_payment_operator">Dodaj</button>
           </div>
         </div>
       </div>
@@ -495,6 +510,55 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
             <button type="button" class="btn btn-primary castomize_site_button">Zapisz</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- Payment operators modal -->
+    <div class="modal fade" id="paymentOperatorsModal" tabindex="-1" role="dialog" aria-labelledby="paymentOperatorsModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document" style="max-width: 650px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="paymentOperatorsModalLabel">Operatorzy płatności</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Nazwa</th>
+                    <th>Operator</th>
+                    <th>ID klienta</th>
+                    <th>ID usługi</th>
+                    <th>Treść SMSa</th>
+                    <th>Akcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for po in payment_operators %}
+                      <tr class="payment_operator{{ po.id }}">
+                        <td>{{ po.operator_name }}</td>
+                        <td>{{ po.operator_type }}</td>
+                        <td>{% if po.client_id %}{{ po.client_id }}{% endif %}</td>
+                        <td>{% if po.service_id %}{{ po.service_id }}{% endif %}</td>
+                        <td>{% if po.sms_content %}{{ po.sms_content }}{% endif %}</td>
+                        <td>
+                            <button class="remove_payment_operator btn btn-danger btn-sm" operator_id="{{ po.id }}">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </td>
+                      </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
           </div>
         </div>
       </div>

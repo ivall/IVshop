@@ -9,7 +9,7 @@ from lvluppayments import Payments
 
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, generate_random_chars
-from .models import Server, Product, Purchase, Voucher
+from .models import Server, PaymentOperator, Product, Purchase, Voucher
 
 import requests
 
@@ -99,12 +99,17 @@ def add_server(request):
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
         counted_sells = {}
+        exclude = []
         counted_products = Product.objects.filter(server__id=server_id).count()
         purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
         purchases = Purchase.objects.filter(product__server__id=server_id)
         server = Server.objects.get(id=server_id)
         products = Product.objects.filter(server__id=server_id)
         vouchers = Voucher.objects.filter(product__server__id=server_id)
+        payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+        for po in payment_operators:
+            if po.operator_type == 'lvlup_sms' or po.operator_type == 'lvlup_other' or po.operator_type == 'microsms_sms':
+                exclude.append(po.operator_type)
         for product in products:
             count = Purchase.objects.filter(product_id=product.id, status=1).count()
             counted_sells.update({str(product.id): count})
@@ -115,16 +120,14 @@ def panel(request, server_id):
             'counted_products': counted_products,
             'purchases_count': purchases_count,
             'purchases': purchases,
-            'client_id': server.client_id,
             'products': products,
             'counted_sells': counted_sells,
             'vouchers': vouchers,
             'server_logo': server.logo,
             'own_css': server.own_css,
             'rcon_port': server.rcon_port,
-            'microsms_service_id': server.microsms_service_id,
-            'microsms_sms_content': server.microsms_sms_content,
-            'payment_type': server.payment_type
+            'payment_operators': payment_operators,
+            'assigned_operators': exclude
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -147,13 +150,11 @@ def add_product(request):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if server_id:
-        check_payment_type = Server.objects.filter(owner_id=request.session['user_id'], id=server_id).values('payment_type')
-        if not check_payment_type:
-            return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
-        elif not check_payment_type[0]['payment_type']:
-            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności w ustawieniach.'}, status=411)
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server__id=server_id)
+        if not check_payment_type.exists():
+            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności.'}, status=411)
 
-    product_price = float(request.POST.get('product_price'))
+    product_price = float(product_commands)
     product_price = float(format(product_price, '.2f'))
     if not product_price > 0.99:
         return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
@@ -184,26 +185,59 @@ def add_product(request):
 
 @csrf_exempt
 @login_required
-def save_settings(request):
-    if request.POST.get("payment_type") == "1":
-        if not request.POST.get("client_id") or not request.POST.get("api_key"):
-            return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
-    else:
-        if not request.POST.get("client_id") or not request.POST.get("microsms_service_id") or not request.POST.get("microsms_sms_content"):
-            return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
-    authorize_user = Server.objects.filter(id=request.POST.get("server_id")).values('owner_id')
+def add_operator(request, operator_type):
+    if operator_type not in ['lvlup_sms', 'lvlup_other', 'microsms_sms']:
+        return JsonResponse({'message': 'Taki operator nie został znaleziony.'}, status=404)
+
+    operator_name = request.POST.get("operator_name")
+    if not operator_name:
+        return JsonResponse({'message': 'Uzupełnij informacje o operatorze.'}, status=411)
+
+    client_id = request.POST.get("client_id")
+    server_id = request.POST.get("server_id")
+    api_key = request.POST.get("api_key")
+    service_id = request.POST.get("service_id")
+    sms_content = request.POST.get("sms_content")
+    operator = PaymentOperator.objects.filter(operator_type=operator_type, server__id=server_id)
+    if operator.exists():
+        return JsonResponse({'message': 'Dodałeś już takiego operatora.'}, status=409)
+    if operator_type == 'lvlup_sms' and not client_id:
+        return JsonResponse({'message': 'Uzupełnij informacje o operatorze.'}, status=411)
+    elif operator_type == 'lvlup_other' and not api_key:
+        return JsonResponse({'message': 'Uzupełnij informacje o operatorze.'}, status=411)
+    elif operator_type == 'microsms_sms':
+        if not client_id or not service_id or not sms_content:
+            return JsonResponse({'message': 'Uzupełnij informacje o operatorze.'}, status=411)
+
+    authorize_user = Server.objects.filter(id=server_id).values('owner_id')
     if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
-        if request.POST.get("payment_type") == "1":
-            Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
-                payment_type=request.POST.get("payment_type"),
-                api_key=request.POST.get("api_key"),
-                client_id=request.POST.get("client_id"))
-        else:
-            Server.objects.select_for_update().filter(id=request.POST.get("server_id")).update(
-                payment_type=request.POST.get("payment_type"),
-                microsms_service_id=request.POST.get("microsms_service_id"),
-                client_id=request.POST.get("client_id"),
-                microsms_sms_content=request.POST.get("microsms_sms_content"))
+        if operator_type == 'lvlup_sms':
+            new_operator = PaymentOperator(
+                operator_type=operator_type,
+                operator_name=operator_name,
+                client_id=client_id,
+                server=Server.objects.get(id=server_id)
+            )
+            new_operator.save()
+        elif operator_type == 'lvlup_other':
+            new_operator = PaymentOperator(
+                operator_type=operator_type,
+                operator_name=operator_name,
+                api_key=api_key,
+                server=Server.objects.get(id=server_id)
+            )
+            new_operator.save()
+        elif operator_type == 'microsms_sms':
+            new_operator = PaymentOperator(
+                operator_type=operator_type,
+                operator_name=operator_name,
+                client_id=client_id,
+                service_id=service_id,
+                sms_content=sms_content,
+                server=Server.objects.get(id=server_id)
+            )
+            new_operator.save()
+        messages.add_message(request, messages.SUCCESS, 'Dodano nowego operatora płatności.')
         return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -482,3 +516,15 @@ def customize_website(request):
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"))
     return JsonResponse({'message': 'Zapisano.'}, status=200)
+
+
+@csrf_exempt
+@login_required
+def remove_payment_operator(request):
+    operator_id = request.POST.get("operator_id")
+    operator = PaymentOperator.objects.filter(id=operator_id, server__owner_id=request.session['user_id'])
+    if not operator.exists():
+        return JsonResponse({'message': 'Nie znaleziono takiego operatora.'}, status=404)
+    operator.delete()
+    messages.add_message(request, messages.SUCCESS, 'Operator został usunięty.')
+    return JsonResponse({'message': 'Operator został usunięty.'}, status=200)
