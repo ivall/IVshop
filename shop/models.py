@@ -42,10 +42,12 @@ class Product(models.Model):
     product_name = models.CharField(max_length=100)
     product_description = models.CharField(max_length=200)
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
-    price = models.CharField(max_length=10)
-    sms_number = models.IntegerField()
     product_commands = models.CharField(max_length=2000)
     product_image = models.URLField(blank=True, default="")
+    # Opcjonalne, wszystko zależy od operatorów płatności
+    lvlup_other_price = models.CharField(max_length=10, blank=True, null=True)
+    lvlup_sms_number = models.IntegerField(blank=True, null=True)
+    microsms_sms_number = models.IntegerField(blank=True, null=True)
 
 
 class Purchase(models.Model):

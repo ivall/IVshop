@@ -140,33 +140,54 @@ def add_product(request):
     server_id = request.POST.get("server_id")
     product_name = request.POST.get("product_name")
     product_description = request.POST.get("product_description")
-    product_price = request.POST.get("product_price")
-    product_sms_price = request.POST.get("product_sms_price")
+    lvlup_other_price = request.POST.get("lvlup_other_price")
+    lvlup_sms_number = request.POST.get("lvlup_sms_price")
+    microsms_sms_number = request.POST.get("microsms_sms_price")
     product_commands = request.POST.get("product_commands")
     product_image = request.POST.get("product_image")
-    if not product_name or not product_description or not product_price or not product_sms_price or not product_commands:
+    if not product_name or not product_description or not product_commands:
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
-    if not request.POST.get('server_id') and not request.POST.get('edit_mode'):
+    if not server_id and not request.POST.get('edit_mode'):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if server_id:
         check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server__id=server_id)
-        if not check_payment_type.exists():
-            return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności.'}, status=411)
+    elif request.POST.get("product_id"):
+        server_id = Product.objects.filter(id=request.POST.get("product_id")).values('server__id')
+        server_id = server_id[0]['server__id']
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server_id=server_id)
+    else:
+        return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=404)
 
-    product_price = float(product_commands)
-    product_price = float(format(product_price, '.2f'))
-    if not product_price > 0.99:
-        return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
-    elif product_price > 999.99:
-        return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
+    if not check_payment_type.exists():
+        return JsonResponse({'message': 'Aby dodać produkt wybierz operatora płatności.'}, status=411)
+
+    for po in check_payment_type:
+        if po.operator_type == 'lvlup_sms' and not lvlup_sms_number:
+            print('1')
+            return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
+        elif po.operator_type == 'lvlup_other' and not lvlup_other_price:
+            print('2')
+            return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
+        elif po.operator_type == 'microsms_sms' and not microsms_sms_number:
+            print('3')
+            return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
+
+    if lvlup_other_price:
+        lvlup_other_price = float(lvlup_other_price)
+        lvlup_other_price = float(format(lvlup_other_price, '.2f'))
+        if not lvlup_other_price > 0.99:
+            return JsonResponse({'message': 'Minimalna cena wynosi 1 PLN.'}, status=401)
+        elif lvlup_other_price > 999.99:
+            return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
 
     if request.POST.get('edit_mode'):
         Product.objects.select_for_update().filter(id=request.POST.get("product_id")).update(
             product_name=product_name,
             product_description=product_description,
-            price=product_price,
-            sms_number=product_sms_price,
+            lvlup_other_price=lvlup_other_price,
+            lvlup_sms_number=lvlup_sms_number,
+            microsms_sms_number=microsms_sms_number,
             product_commands=product_commands,
             product_image=product_image)
         return JsonResponse({'message': 'Zapisano zmiany.'}, status=200)
@@ -175,8 +196,9 @@ def add_product(request):
             product_name=product_name,
             product_description=product_description,
             server=Server.objects.get(id=server_id),
-            price=product_price,
-            sms_number=product_sms_price,
+            lvlup_other_price=lvlup_other_price,
+            lvlup_sms_number=lvlup_sms_number,
+            microsms_sms_number=microsms_sms_number,
             product_commands=product_commands,
             product_image=product_image)
         p.save()
@@ -249,10 +271,12 @@ def shop(request, server_id):
         return render(request, '404.html')
     products = Product.objects.filter(server__id=server_id)
     purchases = Purchase.objects.filter(product__server__id=server_id, status=1).order_by('-id')[0:5]
+    payment_operators = PaymentOperator.objects.filter(server__id=server_id)
     context = {
         'server': check_server_exists,
         'products': products,
-        'purchases': purchases
+        'purchases': purchases,
+        'payment_operators': payment_operators
     }
     return render(request, 'shop.html', context=context)
 
@@ -446,12 +470,12 @@ def product_info(request):
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
     if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
-
     return JsonResponse({
         'product_name': product[0].product_name,
         'product_description': product[0].product_description,
-        'price': format(float(product[0].price), '.2f'),
-        'sms_number': product[0].sms_number,
+        'lvlup_sms_number': product[0].lvlup_sms_number,
+        'lvlup_other_price': product[0].lvlup_other_price,
+        'microsms_sms_number': product[0].microsms_sms_number,
         'commands': product[0].product_commands,
         'product_image': product[0].product_image
     })

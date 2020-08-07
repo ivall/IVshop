@@ -149,11 +149,13 @@
                   <textarea name="product_description" class="form-control add_product" id="product_description"></textarea>
                   <label for="product_image" class="col-form-label">Zdjęcie produktu</label>
                   <input type="url" name="product_image" class="form-control add_product" id="product_image" placeholder="link do zdjęcia">
-                  <label for="product_price" class="col-form-label">Cena</label>
-                  <input type="number" name="product_price" class="form-control add_product" id="product_price" placeholder="Format: 10.00">
-                  <label for="product_sms_price">Cena SMS</label>
-                  <select class="custom-select" id="product_sms_price">
-                      {% if payment_type == 1 %}
+                  {% if 'lvlup_other' in assigned_operators %}
+                  <label for="lvlup_other_price" class="col-form-label">Cena</label>
+                  <input type="number" name="lvlup_other_price" class="form-control add_product" id="lvlup_other_price" placeholder="Format: 10.00">
+                  {% endif %}
+                  {% if 'lvlup_sms' in assigned_operators %}
+                  <label for="lvlup_sms_price">Cena SMS lvlup</label>
+                  <select class="custom-select" id="lvlup_sms_price">
                       <option value="70068">0,62 PLN</option>
                       <option value="7168">1,23 PLN</option>
                       <option value="72068">2,46 PLN</option>
@@ -165,8 +167,12 @@
                       <option value="91068">12,30 PLN</option>
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
-                      <option value="0">Płatności SMS wyłączone</option>
-                      {% elif payment_type == 2 %}
+                      <option value="0">Wyłączone</option>
+                  </select>
+                  {% endif %}
+                  {% if 'microsms_sms' in assigned_operators %}
+                  <label for="microsms_sms_price">Cena SMS microsms</label>
+                  <select class="custom-select" id="microsms_sms_price">
                       <option value="71480">1,23 PLN</option>
                       <option value="72480">2,46 PLN</option>
                       <option value="73480">3,69 PLN</option>
@@ -178,8 +184,9 @@
                       <option value="91900">23,37 PLN</option>
                       <option value="92022">24,60 PLN</option>
                       <option value="92521">30,75 PLN</option>
-                      {% endif %}
+                      <option value="0">Wyłączone</option>
                   </select>
+                  {% endif %}
                   <label for="product_commands" class="col-form-label">Komendy</label>
                   <textarea name="product_commands" class="form-control add_product" id="product_commands"></textarea>
                   <label for="product_commands" class="col-form-label" style="width: 200%;"><p>Komendy oddzielaj <b>średnikami</b>. Nick gracza to <b>{PLAYER}</b>.</p></label>
@@ -288,8 +295,6 @@
                 <thead class="thead-light">
                   <tr>
                     <th>Produkt</th>
-                    <th>Cena</th>
-                    <th>Cena SMS</th>
                     <th>Sprzedano</th>
                     <th>Akcje</th>
                   </tr>
@@ -298,17 +303,6 @@
                   {% for product in products %}
                       <tr class="product{{ product.id }}">
                         <td>{{ product.product_name }}</td>
-                        <td>{{ product.price|floatformat:2 }} PLN</td>
-                        <td>
-                            {% if product.sms_number == 0 %}
-                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
-                                  <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
-                                </svg>
-                            {% else %}
-                                {% change product.sms_number %}
-                            {% endif %}
-                        </td>
                         <td>{% for cs in counted_sells.items %}{% if cs.0 == product.id|stringformat:"i" %}{{ cs.1 }}{% endif %}{% endfor %}</td>
                           <td>
                             <button class="open_edit_product_button btn btn-primary btn-sm" product_id="{{ product.id }}">
@@ -353,11 +347,13 @@
                   <textarea name="edit_product_description" class="form-control edit_product" id="edit_product_description"></textarea>
                   <label for="edit_product_image" class="col-form-label">Zdjęcie produktu</label>
                   <input type="url" name="edit_product_image" class="form-control edit_product" id="edit_product_image" placeholder="link do zdjęcia">
-                  <label for="edit_product_price" class="col-form-label">Cena</label>
-                  <input type="number" name="edit_product_price" step="any" class="form-control edit_product" id="edit_product_price" placeholder="Format: 10.00">
-                  <label for="edit_product_sms_price">Cena SMS</label>
-                  <select class="custom-select" id="edit_product_sms_price">
-                      {% if payment_type == 1 %}
+                  {% if 'lvlup_other' in assigned_operators %}
+                  <label for="edit_lvlup_other_price" class="col-form-label">Cena</label>
+                  <input type="number" name="edit_lvlup_other_price" class="form-control add_product" id="edit_lvlup_other_price" placeholder="Format: 10.00">
+                  {% endif %}
+                  {% if 'lvlup_sms' in assigned_operators %}
+                  <label for="edit_lvlup_sms_price">Cena SMS lvlup</label>
+                  <select class="custom-select" id="edit_lvlup_sms_price">
                       <option value="70068">0,62 PLN</option>
                       <option value="7168">1,23 PLN</option>
                       <option value="72068">2,46 PLN</option>
@@ -369,8 +365,12 @@
                       <option value="91068">12,30 PLN</option>
                       <option value="91758">20,91 PLN</option>
                       <option value="92578">30,75 PLN</option>
-                      <option value="0">Płatności SMS wyłączone</option>
-                      {% elif payment_type == 2 %}
+                      <option value="0">Wyłączone</option>
+                  </select>
+                  {% endif %}
+                  {% if 'microsms_sms' in assigned_operators %}
+                  <label for="edit_microsms_sms_price">Cena SMS microsms</label>
+                  <select class="custom-select" id="edit_microsms_sms_price">
                       <option value="71480">1,23 PLN</option>
                       <option value="72480">2,46 PLN</option>
                       <option value="73480">3,69 PLN</option>
@@ -382,8 +382,9 @@
                       <option value="91900">23,37 PLN</option>
                       <option value="92022">24,60 PLN</option>
                       <option value="92521">30,75 PLN</option>
-                      {% endif %}
+                      <option value="0">Wyłączone</option>
                   </select>
+                  {% endif %}
                   <label for="edit_product_commands" class="col-form-label">Komendy</label>
                   <textarea name="edit_product_commands" class="form-control edit_product" id="edit_product_commands"></textarea>
                   <label for="edit_product_commands" class="col-form-label" style="width: 200%;"><p>Komendy oddzielaj <b>średnikami</b>. Nick gracza to <b>{PLAYER}</b>.</p></label>

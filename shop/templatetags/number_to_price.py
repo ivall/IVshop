@@ -22,6 +22,7 @@ def change(number):
     if price:
         return price
     else:
+        print(number)
         return "Wystąpił błąd, prawdopodobnie zmieniono operatora, ale nie zmieniono numerów SMS."
 
 # microsms

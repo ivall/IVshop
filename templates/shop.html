@@ -78,25 +78,23 @@
     </p>
     <div class="payment_methods">
         <div class="custom-controls-stacked" style="display: inline-flex;">
-        {% if product.server.payment_type == 1 %}
-                {% if product.sms_number != 0 %}
+        {% for po in payment_operators %}
             <div class="custom-control custom-radio mb-3">
-              <input type="hidden" id="sms_lvlup_number{{ product.id }}" value="{{ product.sms_number }}">
-              <input type="radio" id="sms_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
-              <label class="custom-control-label" for="sms_lvlup{{ product.id }}" id="sms_lvlup{{ product.id }}">SMS {% change product.sms_number %}</label>
+              <input type="hidden" id="hidden{{ po.operator_type }}{{ product.id }}"
+                  {% if po.operator_type == 'lvlup_sms' %}
+                     value="{{ product.lvlup_sms_number }}">
+                  {% elif po.operator_type == 'microsms_sms' %}
+                     value="{{ product.microsms_sms_number }}">
+                  {% else %}
+                     value="{{ product.lvlup_other_price }}">
+                  {% endif %}
+              <input type="radio" id="{{ po.operator_type }}{{ product.id }}" name="customRadio" class="custom-control-input">
+              <label class="custom-control-label" for="{{ po.operator_type }}{{ product.id }}" id="{{ po.operator_type }}{{ product.id }}">{{ po.operator_name }}
+                  {% if po.operator_type == 'lvlup_sms'%}{% change product.lvlup_sms_number %}
+                  {% elif po.operator_type == 'microsms_sms' %}{% change2 product.microsms_sms_number %}
+                  {% else %}{{ product.lvlup_other_price|floatformat:2 }} PLN{% endif %}</label>
             </div>
-                {% endif %}
-                <div class="custom-control custom-radio mb-3">
-              <input type="radio" id="other_lvlup{{ product.id }}" name="customRadio" class="custom-control-input">
-              <label class="custom-control-label" for="other_lvlup{{ product.id }}" id="other_lvlup{{ product.id }}">inne {{ product.price|floatformat:2 }} PLN</label>
-            </div>
-        {% elif product.server.payment_type == 2 %}
-            <div class="custom-control custom-radio mb-3">
-              <input type="hidden" id="sms_microsms_number{{ product.id }}" value="{{ product.sms_number }}">
-              <input type="radio" id="sms_microsms{{ product.id }}" name="customRadio" class="custom-control-input">
-              <label class="custom-control-label" for="sms_microsms{{ product.id }}" id="sms_microsms{{ product.id }}">SMS {% change2 product.sms_number %}</label>
-            </div>
-        {% endif %}
+        {% endfor %}
         </div>
     </div>
     <button class="btn btn-primary buy_button" product_id="{{ product.id }}">Kup</button>

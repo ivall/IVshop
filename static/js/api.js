@@ -30,15 +30,16 @@ $(document).ready(function() {
         var server_id = $("#server_id").val();
         var product_name = $("#product_name").val();
         var product_description = $("#product_description").val();
-        var product_price = $("#product_price").val();
-        var product_sms_price = $("#product_sms_price").val();
         var product_commands = $("#product_commands").val();
         var product_image = $("#product_image").val();
+        var lvlup_other_price = $("#lvlup_other_price").val();
+        var lvlup_sms_price = $("#lvlup_sms_price").val();
+        var microsms_sms_price = $("#microsms_sms_price").val();
         $.ajax({
             url: '/add_product/',
             type: 'POST',
             data: {product_name: product_name, server_id: server_id, product_description: product_description,
-                product_price: product_price, product_sms_price: product_sms_price, product_commands: product_commands, product_image: product_image},
+                lvlup_sms_price: lvlup_sms_price, lvlup_other_price: lvlup_other_price, product_commands: product_commands, product_image: product_image, microsms_sms_price: microsms_sms_price},
             success: function (data) {
                 toastr.success(data.message);
                 $('#addProductModal').modal('hide');
@@ -113,23 +114,21 @@ $(document).ready(function() {
     });
     $(document).on("click", ".buy_button", function () {
         var product_id = $(this).attr('product_id');
-        var payment_type = $('#payment_type').val();
-        if (payment_type === "1") {
+        if ($('#sms_lvlup' + product_id).is(':checked')) {
             var sms_number = $('#sms_lvlup_number' + product_id).val();
-            if ($('#sms_lvlup' + product_id).is(':checked')) {
-                $('#lvlup_modal').modal('show');
-                $('.btn-success').addClass('lvlup_sms_buy_button');
-                $('.modal-body').html(`
-                <p>Wyślij SMS na numer <b>` + sms_number + `</b> o treści <b>AP.HOSTMC</b>. W odpowiedzi dostaniesz kod, który wpiszesz niżej.</p>
-                <input type="hidden" id="product_id_modal" value="` + product_id + `">
-                <input type="hidden" id="product_sms_number_modal" value="` + sms_number + `">
-                <label for="player_nick" class="col-form-label">Nick gracza</label>
-                <input type="text" name="player_nick" class="form-control" id="player_nick">
-                <label for="sms_code" class="col-form-label">Kod SMS</label>
-                <input type="text" name="sms_code" class="form-control" id="sms_code">
-                <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
-                <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
-                $(".btn-success").removeClass("lvlup_other_buy_button");
+            $('#lvlup_modal').modal('show');
+            $('.btn-success').addClass('lvlup_sms_buy_button');
+            $('.modal-body').html(`
+            <p>Wyślij SMS na numer <b>` + sms_number + `</b> o treści <b>AP.HOSTMC</b>. W odpowiedzi dostaniesz kod, który wpiszesz niżej.</p>
+            <input type="hidden" id="product_id_modal" value="` + product_id + `">
+            <input type="hidden" id="product_sms_number_modal" value="` + sms_number + `">
+            <label for="player_nick" class="col-form-label">Nick gracza</label>
+            <input type="text" name="player_nick" class="form-control" id="player_nick">
+            <label for="sms_code" class="col-form-label">Kod SMS</label>
+            <input type="text" name="sms_code" class="form-control" id="sms_code">
+            <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
+            <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
+            $(".btn-success").removeClass("lvlup_other_buy_button");
             } else if ($('#other_lvlup' + product_id).is(':checked')) {
                 $('#lvlup_modal').modal('show');
                 $('.btn-success').addClass('lvlup_other_buy_button');
@@ -138,11 +137,7 @@ $(document).ready(function() {
                 <label for="player_nick" class="col-form-label">Nick gracza</label>
                 <input type="text" name="player_nick" class="form-control" id="player_nick">`);
                 $(".btn-success").removeClass("lvlup_sms_buy_button");
-            } else {
-                toastr.warning('Wybierz rodzaj płatności.');
-            }
-        } else if (payment_type === "2") {
-            if ($('#sms_microsms' + product_id).is(':checked')) {
+            } else if ($('#microsms_sms' + product_id).is(':checked')) {
                 var sms_number = $('#sms_microsms_number' + product_id).val();
                 var sms_content = $('#sms_microsms_content').val();
                 $('.btn-success').addClass('microsms_sms_buy');
@@ -157,12 +152,9 @@ $(document).ready(function() {
                 <input type="text" name="sms_code" class="form-control" id="sms_code">
                 <p>Kupując produkt akceptujesz <a href="https://microsms.pl/files/regulations/">regulamin płatności SMS</a>. 
                 <a href="https://microsms.pl/customer/complaint/">Formularz reklamacyjny</a></p>`)
-            } else {
-                toastr.warning('Wybierz rodzaj płatności.');
             }
-        }
         else {
-            toastr.error("Wystąpił niespodziewany błąd związany z operatorem płatności.");
+                toastr.warning('Wybierz rodzaj płatności.');
         }
     });
     $(document).on("click", ".lvlup_sms_buy_button", function () {
@@ -304,8 +296,9 @@ $(document).ready(function() {
                 $('.edit_product_button').attr('product_id', product_id);
                 $('#edit_product_name').val(data.product_name);
                 $('#edit_product_description').val(data.product_description);
-                $('#edit_product_price').val(data.price);
-                $('#edit_product_sms_price').val(data.sms_number);
+                $('#edit_lvlup_other_price').val(data.lvlup_other_price);
+                $('#edit_lvlup_sms_price').val(data.lvlup_sms_number);
+                $('#edit_microsms_sms_price').val(data.microsms_sms_price);
                 $('#edit_product_commands').val(data.commands);
                 $('#edit_product_image').val(data.product_image);
                 $('#editProductModal').modal('show');
@@ -319,16 +312,18 @@ $(document).ready(function() {
         var product_id = $(this).attr('product_id');
         var product_name = $("#edit_product_name").val();
         var product_description = $("#edit_product_description").val();
-        var product_price = $("#edit_product_price").val();
-        var product_sms_price = $("#edit_product_sms_price").val();
+        var lvlup_other_price = $("#edit_lvlup_other_price").val();
+        var lvlup_sms_price = $("#edit_lvlup_sms_price").val();
+        var microsms_sms_price = $("#edit_microsms_sms_price").val();
         var product_commands = $("#edit_product_commands").val();
         var product_image = $("#edit_product_image").val();
+        console.log(lvlup_sms_price);
         $.ajax({
             url: '/add_product/',
             type: 'POST',
             data: {product_id: product_id, product_name: product_name, product_description: product_description,
-                   product_price: product_price, product_sms_price: product_sms_price,
-                   product_commands: product_commands, product_image: product_image, edit_mode: 'True'},
+                   lvlup_sms_price: lvlup_sms_price, microsms_sms_price: microsms_sms_price,
+                   product_commands: product_commands, product_image: product_image, edit_mode: 'True', lvlup_other_price: lvlup_other_price},
             success: function (data) {
                 $('#editProductModal').modal('hide');
                 toastr.success(data.message)
