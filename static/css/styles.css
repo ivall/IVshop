@@ -39,6 +39,7 @@ p {
 }
 .shop-card {
     width: 50rem;
+    flex-flow: row;
 }
 .shop-card .card-title, .shop-card .card-text {
     text-align: center;
@@ -89,11 +90,11 @@ p {
     display: inline-flex;
 }
 .product_img {
-    width: 180px;
-    position: absolute;
-    align-self: flex-start;
+    width: 150px;
+    display: inline-flex;
     margin: 15px;
     border-radius: 0;
+    align-self: flex-start;
 }
 @media (max-width: 1224px) {
     .own-container {
@@ -109,6 +110,7 @@ p {
     }
     .shop-card {
         width: 100%;
+        flex-flow: column;
     }
     .widgets {
         flex-flow: column;

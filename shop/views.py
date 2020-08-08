@@ -8,13 +8,15 @@ from django.conf import settings
 from lvluppayments import Payments
 
 from shop.utils.oauth2 import Oauth
-from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, generate_random_chars
+from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, \
+    generate_random_chars
 from .models import Server, PaymentOperator, Product, Purchase, Voucher
 
 import requests
 
 if not settings.DEBUG:
     from shop.utils.functions import actualize_servers_data
+
     actualize_servers_data()
 
 
@@ -151,11 +153,13 @@ def add_product(request):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if server_id:
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server__id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'],
+                                                            server__id=server_id)
     elif request.POST.get("product_id"):
         server_id = Product.objects.filter(id=request.POST.get("product_id")).values('server__id')
         server_id = server_id[0]['server__id']
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server_id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'],
+                                                            server_id=server_id)
     else:
         return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=404)
 
@@ -289,20 +293,30 @@ def buy_sms(request):
     product_id = request.POST.get('product_id')
     if not player_nick or not sms_code or not product_id or not sms_number:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+    if request.POST.get("payment_type") == "1":
+        product = Product.objects.filter(id=product_id, lvlup_sms_number=sms_number).values('server__server_ip',
+                                                                                      'server__rcon_password',
+                                                                                      'product_commands',
+                                                                                      'server__server_status',
+                                                                                      'server__rcon_port', 'server__id')
+    elif request.POST.get("payment_type") == "2":
+        product = Product.objects.filter(id=product_id, microsms_sms_number=sms_number).values('server__server_ip',
+                                                                                      'server__rcon_password',
+                                                                                      'product_commands',
+                                                                                      'server__server_status',
+                                                                                      'server__rcon_port', 'server__id')
 
-    product = Product.objects.filter(id=product_id,sms_number=sms_number).values('server__client_id',
-                                                                                 'server__server_ip',
-                                                                                 'server__rcon_password',
-                                                                                 'product_commands',
-                                                                                 'server__server_status',
-                                                                                 'server__rcon_port',
-                                                                                 'server__microsms_service_id')
-    if not product.exists():
+    payment_operator = PaymentOperator.objects.filter(server__id=product[0]['server__id']).values('client_id', 'sms_content', 'service_id', 'operator_type')
+    if not product.exists() or not payment_operator.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
     if product[0]['server__server_status'] == 0:
-        return JsonResponse({'message': 'Serwer jest aktualnie wyłączony, zachowaj kod i wykorzystaj go, gdy serwer będzie włączony.'}, status=411)
+        return JsonResponse(
+            {'message': 'Serwer jest aktualnie wyłączony, zachowaj kod i wykorzystaj go, gdy serwer będzie włączony.'},
+            status=411)
 
-    client_id = product[0]['server__client_id']
+    for po in payment_operator:
+        if po['client_id'] and po['operator_type'] == 'lvlup_sms':
+            client_id = po['client_id']
     if request.POST.get("payment_type") == "1":
         url = f"https://lvlup.pro/api/checksms?id={client_id}&code={sms_code}&number={sms_number}&desc=[IVshop] Zarobek z itemshopu"
         r = requests.get(url).json()
@@ -328,7 +342,11 @@ def buy_sms(request):
         return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
     elif request.POST.get("payment_type") == "2":
-        service_id = product[0]['server__microsms_service_id']
+        for po in payment_operator:
+            if po['client_id'] and po['service_id'] and po['operator_type'] == 'microsms_sms':
+                service_id = po['service_id']
+                client_id = po['client_id']
+        service_id = payment_operator[0]['service_id']
         url = f'https://microsms.pl/api/check_multi.php?userid={client_id}&code={sms_code}&serviceid={service_id}'
         r = requests.get(url)
         payment_status = r.text.strip()
@@ -367,18 +385,19 @@ def buy_other(request):
     if not product_id or not player_nick:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
 
-    api_key = Product.objects.filter(id=product_id).values('server__api_key', 'price', 'server__server_status')
-    if api_key[0]['server__server_status'] == 0:
+    product = Product.objects.filter(id=product_id).values('lvlup_other_price', 'server__server_status', 'server_id')
+    payment_operator = PaymentOperator.objects.filter(server_id=product[0]['server_id'], operator_type='lvlup_other').values('api_key')
+    if product[0]['server__server_status'] == 0:
         return JsonResponse({'message': 'Serwer jest aktualnie wyłączony.'}, status=411)
 
-    price = api_key[0]['price']
+    price = product[0]['lvlup_other_price']
     if settings.DEBUG:
-        payment = Payments(api_key[0]['server__api_key'], 'sandbox')
+        payment = Payments(payment_operator[0]['api_key'], 'sandbox')
     else:
-        payment = Payments(api_key[0]['server__api_key'], 'production')
-    domain = 'https://'+str(request.META['HTTP_HOST'])
-    success_page2 = str(domain)+"/success"
-    lvlup_check_page = str(domain)+"/lvlup_check"
+        payment = Payments(payment_operator[0]['api_key'], 'production')
+    domain = 'https://' + str(request.META['HTTP_HOST'])
+    success_page2 = str(domain) + "/success"
+    lvlup_check_page = str(domain) + "/lvlup_check"
     link = payment.create_payment(format(float(price), '.2f'), success_page2, lvlup_check_page)
     try:
         url = link['url']
@@ -402,14 +421,16 @@ def lvlup_check(request):
     paymentId = data['paymentId']
     status = data['status']
     purchase = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
-                                                                       'product__server__server_ip',
-                                                                       'product__server__rcon_password',
-                                                                       'product__product_commands',
-                                                                       'product__server__api_key', 'product__server__rcon_port')
+                                                                  'product__server__server_ip',
+                                                                  'product__server__rcon_password',
+                                                                  'product__product_commands',
+                                                                  'product__server__rcon_port', 'product__server_id')
+    payment_operator = PaymentOperator.objects.filter(server_id=purchase[0]['product__server_id'], operator_type='lvlup_other').values('api_key')
+
     if settings.DEBUG:
-        payment = Payments(str(purchase[0]['product__server__api_key']), 'sandbox')
+        payment = Payments(str(payment_operator[0]['api_key']), 'sandbox')
     else:
-        payment = Payments(str(purchase[0]['product__server__api_key']), 'production')
+        payment = Payments(str(payment_operator[0]['api_key']), 'production')
 
     if purchase.exists() and status == 'CONFIRMED' and payment.is_paid(str(paymentId)):
         server_ip = purchase[0]['product__server__server_ip']
@@ -470,6 +491,7 @@ def product_info(request):
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
     if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+
     return JsonResponse({
         'product_name': product[0].product_name,
         'product_description': product[0].product_description,
@@ -507,9 +529,10 @@ def use_voucher(request):
     if not player_nick or not voucher_code or not server_id:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
 
-    voucher = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values('product__server__server_ip',
-                                                                   'product__server__rcon_password',
-                                                                   'product__product_commands', 'product__server__rcon_port')
+    voucher = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values(
+        'product__server__server_ip',
+        'product__server__rcon_password',
+        'product__product_commands', 'product__server__rcon_port')
     if not voucher.exists():
         return JsonResponse({'message': 'Niepoprawny kod'}, status=401)
 
@@ -524,7 +547,6 @@ def use_voucher(request):
 
     voucher.update(status=1, player=player_nick)
     return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
-
 
 
 def success_page(request):

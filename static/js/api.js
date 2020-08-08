@@ -114,42 +114,48 @@ $(document).ready(function() {
     });
     $(document).on("click", ".buy_button", function () {
         var product_id = $(this).attr('product_id');
-        if ($('#sms_lvlup' + product_id).is(':checked')) {
-            var sms_number = $('#sms_lvlup_number' + product_id).val();
+        if ($('#lvlup_sms' + product_id).is(':checked')) {
+            var sms_number = $('#hiddenlvlup_sms' + product_id).val();
             $('#lvlup_modal').modal('show');
             $('.btn-success').addClass('lvlup_sms_buy_button');
-            $('.modal-body').html(`
+            $('.btn-success').removeClass('microsms_sms_buy');
+            $('.btn-success').removeClass('lvlup_other_buy_button');
+            $('.lvlup-modal-body').html(`
             <p>Wyślij SMS na numer <b>` + sms_number + `</b> o treści <b>AP.HOSTMC</b>. W odpowiedzi dostaniesz kod, który wpiszesz niżej.</p>
             <input type="hidden" id="product_id_modal" value="` + product_id + `">
             <input type="hidden" id="product_sms_number_modal" value="` + sms_number + `">
-            <label for="player_nick" class="col-form-label">Nick gracza</label>
-            <input type="text" name="player_nick" class="form-control" id="player_nick">
-            <label for="sms_code" class="col-form-label">Kod SMS</label>
-            <input type="text" name="sms_code" class="form-control" id="sms_code">
+            <label for="lvlup_player_nick" class="col-form-label">Nick gracza</label>
+            <input type="text" name="lvlup_player_nick" class="form-control" id="lvlup_player_nick">
+            <label for="lvlup_sms_code" class="col-form-label">Kod SMS</label>
+            <input type="text" name="lvlup_sms_code" class="form-control" id="lvlup_sms_code">
             <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
             <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
             $(".btn-success").removeClass("lvlup_other_buy_button");
-            } else if ($('#other_lvlup' + product_id).is(':checked')) {
+            } else if ($('#lvlup_other' + product_id).is(':checked')) {
                 $('#lvlup_modal').modal('show');
                 $('.btn-success').addClass('lvlup_other_buy_button');
-                $('.modal-body').html(`
+                $('.btn-success').removeClass('lvlup_sms_buy_button');
+                $('.btn-success').removeClass('microsms_sms_buy');
+                $('.lvlup-modal-body').html(`
                 <input type="hidden" id="product_id_modal" value="` + product_id + `">
                 <label for="player_nick" class="col-form-label">Nick gracza</label>
                 <input type="text" name="player_nick" class="form-control" id="player_nick">`);
                 $(".btn-success").removeClass("lvlup_sms_buy_button");
             } else if ($('#microsms_sms' + product_id).is(':checked')) {
-                var sms_number = $('#sms_microsms_number' + product_id).val();
+                var sms_number = $('#hiddenmicrosms_sms' + product_id).val();
                 var sms_content = $('#sms_microsms_content').val();
                 $('.btn-success').addClass('microsms_sms_buy');
+                $('.btn-success').removeClass('lvlup_sms_buy_button');
+                $('.btn-success').removeClass('lvlup_other_buy_button');
                 $('#microsms_modal').modal('show');
-                $('.modal-body').html(`
+                $('.microsms-modal-body').html(`
                 <p>Wyślij SMS na numer <b>` + sms_number + `</b> o treści <b>`+ sms_content +`</b>. W odpowiedzi dostaniesz kod, który wpiszesz niżej.</p>
                 <input type="hidden" id="product_id_modal" value="` + product_id + `">
                 <input type="hidden" id="product_sms_number_modal" value="` + sms_number + `">
-                <label for="player_nick" class="col-form-label">Nick gracza</label>
-                <input type="text" name="player_nick" class="form-control" id="player_nick">
-                <label for="sms_code" class="col-form-label">Kod SMS</label>
-                <input type="text" name="sms_code" class="form-control" id="sms_code">
+                <label for="microsms_player_nick" class="col-form-label">Nick gracza</label>
+                <input type="text" name="microsms_player_nick" class="form-control" id="microsms_player_nick">
+                <label for="microsms_sms_code" class="col-form-label">Kod SMS</label>
+                <input type="text" name="microsms_sms_code" class="form-control" id="microsms_sms_code">
                 <p>Kupując produkt akceptujesz <a href="https://microsms.pl/files/regulations/">regulamin płatności SMS</a>. 
                 <a href="https://microsms.pl/customer/complaint/">Formularz reklamacyjny</a></p>`)
             }
@@ -161,9 +167,9 @@ $(document).ready(function() {
         $(this).prop('disabled', true);
         $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         var product_id = $('#product_id_modal').val();
-        var sms_number = $('#product_sms_number_modal').val();
-        var player_nick = $('#player_nick').val();
-        var sms_code = $('#sms_code').val();
+        var sms_number = $('#hiddenlvlup_sms'+product_id).val();
+        var player_nick = $('#lvlup_player_nick').val();
+        var sms_code = $('#lvlup_sms_code').val();
         $.ajax({
             url: '/buy_sms/',
             type: 'POST',
@@ -185,9 +191,9 @@ $(document).ready(function() {
         $(this).prop('disabled', true);
         $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         var product_id = $('#product_id_modal').val();
-        var sms_number = $('#product_sms_number_modal').val();
-        var player_nick = $('#player_nick').val();
-        var sms_code = $('#sms_code').val();
+        var sms_number = $('#hiddenmicrosms_sms'+product_id).val();
+        var player_nick = $('#microsms_player_nick').val();
+        var sms_code = $('#microsms_sms_code').val();
         $.ajax({
             url: '/buy_sms/',
             type: 'POST',
@@ -298,7 +304,7 @@ $(document).ready(function() {
                 $('#edit_product_description').val(data.product_description);
                 $('#edit_lvlup_other_price').val(data.lvlup_other_price);
                 $('#edit_lvlup_sms_price').val(data.lvlup_sms_number);
-                $('#edit_microsms_sms_price').val(data.microsms_sms_price);
+                $('#edit_microsms_sms_price').val(data.microsms_sms_number);
                 $('#edit_product_commands').val(data.commands);
                 $('#edit_product_image').val(data.product_image);
                 $('#editProductModal').modal('show');
