@@ -132,3 +132,13 @@ p {
     margin-left: 15px;
     margin-bottom: 20px;
 }
+.ads {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+.ad {
+    max-height: 120px;
+    max-width: 100%;
+    object-fit: contain;
+}
