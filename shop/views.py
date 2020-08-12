@@ -9,7 +9,8 @@ from lvluppayments import Payments
 
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, \
-    generate_random_chars
+    generate_random_chars, send_webhook_discord
+
 from .models import Server, PaymentOperator, Product, Purchase, Voucher
 
 import requests
@@ -129,7 +130,8 @@ def panel(request, server_id):
             'own_css': server.own_css,
             'rcon_port': server.rcon_port,
             'payment_operators': payment_operators,
-            'assigned_operators': exclude
+            'assigned_operators': exclude,
+            'discord_webhook': server.discord_webhook
         }
         return render(request, 'panel.html', context=context)
     else:
@@ -297,14 +299,14 @@ def buy_sms(request):
         product = Product.objects.filter(id=product_id, lvlup_sms_number=sms_number).values('server__server_ip',
                                                                                       'server__rcon_password',
                                                                                       'product_commands',
-                                                                                      'server__server_status',
-                                                                                      'server__rcon_port', 'server__id')
+                                                                                      'server__server_status', 'product_name',
+                                                                                      'server__rcon_port', 'server__id', 'server__discord_webhook')
     elif request.POST.get("payment_type") == "2":
         product = Product.objects.filter(id=product_id, microsms_sms_number=sms_number).values('server__server_ip',
                                                                                       'server__rcon_password',
                                                                                       'product_commands',
-                                                                                      'server__server_status',
-                                                                                      'server__rcon_port', 'server__id')
+                                                                                      'server__server_status', 'product_name',
+                                                                                      'server__rcon_port', 'server__id', 'server__discord_webhook')
 
     payment_operator = PaymentOperator.objects.filter(server__id=product[0]['server__id']).values('client_id', 'sms_content', 'service_id', 'operator_type')
     if not product.exists() or not payment_operator.exists():
@@ -339,6 +341,8 @@ def buy_sms(request):
             status=1,
         )
         p.save()
+        if product[0]['server__discord_webhook']:
+            send_webhook_discord(product[0]['server__discord_webhook'], player_nick, product[0]['product_name'])
         return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
     elif request.POST.get("payment_type") == "2":
@@ -375,6 +379,8 @@ def buy_sms(request):
                 status=1,
             )
             p.save()
+            if product[0]['server__discord_webhook']:
+                send_webhook_discord(product[0]['server__discord_webhook'], player_nick, product[0]['product_name'])
             return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
 
@@ -424,7 +430,8 @@ def lvlup_check(request):
                                                                   'product__server__server_ip',
                                                                   'product__server__rcon_password',
                                                                   'product__product_commands',
-                                                                  'product__server__rcon_port', 'product__server_id')
+                                                                  'product__server__rcon_port', 'product__server_id', 'product__product_name',
+                                                                  'product__server__discord_webhook')
     payment_operator = PaymentOperator.objects.filter(server_id=purchase[0]['product__server_id'], operator_type='lvlup_other').values('api_key')
 
     if settings.DEBUG:
@@ -442,6 +449,8 @@ def lvlup_check(request):
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         purchase.update(status=1)
+        if purchase[0]['server__discord_webhook']:
+            send_webhook_discord(purchase[0]['product__server__discord_webhook'], purchase[0]['buyer'], purchase[0]['product__product_name'])
         return JsonResponse({'message': 'Udało się.'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
 
@@ -560,7 +569,8 @@ def customize_website(request):
     Server.objects.select_for_update().filter(id=server_id, owner_id=request.session['user_id']).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
-        shop_style=request.POST.get("shop_style"))
+        shop_style=request.POST.get("shop_style"),
+        discord_webhook=request.POST.get("discord_webhook"))
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 
 

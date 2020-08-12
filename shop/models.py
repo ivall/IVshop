@@ -14,6 +14,7 @@ class Server(models.Model):
     logo = models.URLField(blank=True)
     own_css = models.URLField(blank=True)
     shop_style = models.CharField(max_length=5, default="light")
+    discord_webhook = models.URLField(blank=True)
 
 
 """

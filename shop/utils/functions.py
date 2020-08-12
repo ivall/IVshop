@@ -22,11 +22,28 @@ def login_required(function):
     return wrapper
 
 
+def send_webhook_discord(webhook_url, buyer, product_name):
+    json_payload = {
+        "embeds": [
+            {
+                "title": "Zakup produktu",
+                "image": {
+                    "url": f"https://minotar.net/avatar/{buyer}/50"
+                },
+                "color": 3066993,
+                "description": f"Gracz **{buyer}** zakupił **{product_name}**. Dziękujemy! :heart:"
+            }],
+        "username": "IVshop"
+    }
+
+    r = requests.post(webhook_url, json=json_payload)
+
+
+
 def send_commands(server_ip, rcon_password, commands, buyer, rcon_port):
     server_ip = str(server_ip).split(':')[0]
     mcr = MCRcon(server_ip, rcon_password, int(rcon_port))
     mcr.connect()
-    print(mcr)
     for command in commands:
         mcr.command(command.replace("{PLAYER}", buyer))
     mcr.disconnect()
@@ -34,8 +51,9 @@ def send_commands(server_ip, rcon_password, commands, buyer, rcon_port):
 
 def check_rcon_connection(server_ip, rcon_password, rcon_port):
     try:
-        server_ip = str(server_ip).split(':')[0]
-        mcr = MCRcon(server_ip, rcon_password, int(rcon_port))
+        new_server_ip = str(server_ip).split(':')[0]
+        print(new_server_ip)
+        mcr = MCRcon(new_server_ip, rcon_password, int(rcon_port))
         mcr.connect()
         mcr.disconnect()
         return True

@@ -486,7 +486,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="castomizationSiteLabel">Kastomizacja strony</h5>
+            <h5 class="modal-title" id="castomizationSiteLabel">Ustawienia sklepu</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -502,6 +502,8 @@
                       <option value="light">jasny</option>
                       <option value="dark">ciemny</option>
                   </select>
+                  <label for="discord_webhook" class="col-form-label">Webhook discord</label>
+                  <input type="url" name="discord_webhook" class="form-control castomization_site" id="discord_webhook" placeholder="Link do webhooka" value="{{ discord_webhook }}">
               </div>
           </div>
           <div class="modal-footer">

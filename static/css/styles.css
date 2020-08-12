@@ -132,12 +132,12 @@ p {
     margin-left: 15px;
     margin-bottom: 20px;
 }
-.ads {
+.sponsors {
     display: flex;
     justify-content: center;
     flex-direction: column;
 }
-.ad {
+.sponsor {
     max-height: 120px;
     max-width: 100%;
     object-fit: contain;
