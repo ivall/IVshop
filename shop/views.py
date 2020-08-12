@@ -449,7 +449,7 @@ def lvlup_check(request):
         except:
             return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=401)
         purchase.update(status=1)
-        if purchase[0]['server__discord_webhook']:
+        if purchase[0]['product__server__discord_webhook']:
             send_webhook_discord(purchase[0]['product__server__discord_webhook'], purchase[0]['buyer'], purchase[0]['product__product_name'])
         return JsonResponse({'message': 'Udało się.'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
