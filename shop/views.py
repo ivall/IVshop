@@ -1,4 +1,6 @@
 import json
+import re
+import requests
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -12,8 +14,6 @@ from shop.utils.functions import authorize_panel, send_commands, check_rcon_conn
     generate_random_chars, send_webhook_discord
 
 from .models import Server, PaymentOperator, Product, Purchase, Voucher
-
-import requests
 
 if not settings.DEBUG:
     from shop.utils.functions import actualize_servers_data
@@ -346,6 +346,9 @@ def buy_sms(request):
         return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
     elif request.POST.get("payment_type") == "2":
+        pattern = re.compile("^[A-Za-z0-9]{8}$")
+        if not pattern.match(sms_code):
+            return JsonResponse({'message': 'Niepoprawny format kodu.'}, status=406)
         for po in payment_operator:
             if po['client_id'] and po['service_id'] and po['operator_type'] == 'microsms_sms':
                 service_id = po['service_id']
