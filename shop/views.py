@@ -350,8 +350,7 @@ def buy_sms(request):
             if po['client_id'] and po['service_id'] and po['operator_type'] == 'microsms_sms':
                 service_id = po['service_id']
                 client_id = po['client_id']
-            else:
-                return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=401)
+
         url = f'https://microsms.pl/api/check_multi.php?userid={client_id}&code={sms_code}&serviceid={service_id}'
         r = requests.get(url)
         payment_status = r.text.strip()
