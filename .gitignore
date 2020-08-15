@@ -1,4 +1,4 @@
 .idea
 db.sqlite3
 __pycache__
-panel/migrations
+shop/migrations
