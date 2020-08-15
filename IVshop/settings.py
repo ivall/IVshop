@@ -31,7 +31,7 @@ SITE_ID = 2
 # Application definition
 
 INSTALLED_APPS = [
-    'shop',
+    'panel',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -1,5 +1,5 @@
 import threading
-from shop.models import Server
+from panel.models import Server
 from django.http import JsonResponse
 from django.contrib import messages
 from django.shortcuts import redirect

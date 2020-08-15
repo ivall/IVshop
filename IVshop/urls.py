@@ -4,10 +4,11 @@ from django.views.static import serve
 from django.conf import settings
 
 urlpatterns = [
+    path('', include('panel.urls')),
     path('', include('shop.urls')),
     path('admin/', admin.site.urls),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
-handler404 = 'shop.views.handler404'
+handler404 = 'panel.views.handler404'
