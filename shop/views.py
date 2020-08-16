@@ -74,6 +74,7 @@ def add_server(request):
     server_ip = request.POST.get("server_ip")
     rcon_password = request.POST.get("rcon_password")
     rcon_port = request.POST.get("rcon_port")
+
     if not server_name or not server_ip or not rcon_password or not rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
 
@@ -105,17 +106,20 @@ def panel(request, server_id):
         exclude = []
         counted_products = Product.objects.filter(server__id=server_id).count()
         purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
-        purchases = Purchase.objects.filter(product__server__id=server_id)
+        purchases = Purchase.objects.filter(product__server__id=server_id).order_by('-date')
         server = Server.objects.get(id=server_id)
         products = Product.objects.filter(server__id=server_id)
         vouchers = Voucher.objects.filter(product__server__id=server_id)
         payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+
         for po in payment_operators:
             if po.operator_type == 'lvlup_sms' or po.operator_type == 'lvlup_other' or po.operator_type == 'microsms_sms':
                 exclude.append(po.operator_type)
+
         for product in products:
             count = Purchase.objects.filter(product_id=product.id, status=1).count()
             counted_sells.update({str(product.id): count})
+
         context = {
             'server_id': server_id,  # Wiem, że rak, do zmiany xD
             'server_name': server.server_name,
@@ -133,6 +137,7 @@ def panel(request, server_id):
             'assigned_operators': exclude,
             'discord_webhook': server.discord_webhook
         }
+
         return render(request, 'panel.html', context=context)
     else:
         return authorize_panel(request, server_id)
@@ -149,19 +154,20 @@ def add_product(request):
     microsms_sms_number = request.POST.get("microsms_sms_price")
     product_commands = request.POST.get("product_commands")
     product_image = request.POST.get("product_image")
+
     if not product_name or not product_description or not product_commands:
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
     if not server_id and not request.POST.get('edit_mode'):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if server_id:
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'],
-                                                            server__id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server__id=server_id)
+
     elif request.POST.get("product_id"):
         server_id = Product.objects.filter(id=request.POST.get("product_id")).values('server__id')
         server_id = server_id[0]['server__id']
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'],
-                                                            server_id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server_id=server_id)
+
     else:
         return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=404)
 
@@ -265,6 +271,7 @@ def add_operator(request, operator_type):
                 server=Server.objects.get(id=server_id)
             )
             new_operator.save()
+
         messages.add_message(request, messages.SUCCESS, 'Dodano nowego operatora płatności.')
         return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
@@ -278,6 +285,7 @@ def save_settings2(request):
     server_ip = request.POST.get("server_ip")
     server_rcon_password = request.POST.get("rcon_password")
     server_rcon_port = request.POST.get("rcon_port")
+
     if not server_id or not server_name or not server_ip or not server_rcon_password or not server_rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
 
@@ -292,7 +300,9 @@ def save_settings2(request):
         server_name=server_name,
         server_ip=server_ip,
         rcon_password=server_rcon_password,
-        rcon_port=server_rcon_port)
+        rcon_port=server_rcon_port
+    )
+
     return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
 
@@ -301,6 +311,7 @@ def save_settings2(request):
 def remove_product(request):
     product_id = request.POST.get('product_id')
     product_to_delete = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+
     if not product_to_delete.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -313,6 +324,7 @@ def remove_product(request):
 def product_info(request):
     product_id = request.GET.get('product_id')
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+
     if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -332,6 +344,7 @@ def product_info(request):
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+
     if not product.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
@@ -342,6 +355,7 @@ def generate_voucher(request):
         status=0
     )
     v.save()
+
     return JsonResponse({'message': 'Voucher został wygenerowany. Znajdziesz go w liście voucherów.'}, status=200)
 
 
@@ -349,11 +363,13 @@ def generate_voucher(request):
 @login_required
 def customize_website(request):
     server_id = request.POST.get("server_id")
+
     Server.objects.select_for_update().filter(id=server_id, owner_id=request.session['user_id']).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"),
         discord_webhook=request.POST.get("discord_webhook"))
+
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 
 
@@ -361,9 +377,12 @@ def customize_website(request):
 @login_required
 def remove_payment_operator(request):
     operator_id = request.POST.get("operator_id")
+
     operator = PaymentOperator.objects.filter(id=operator_id, server__owner_id=request.session['user_id'])
+
     if not operator.exists():
         return JsonResponse({'message': 'Nie znaleziono takiego operatora.'}, status=404)
+
     operator.delete()
     messages.add_message(request, messages.SUCCESS, 'Operator został usunięty.')
     return JsonResponse({'message': 'Operator został usunięty.'}, status=200)
@@ -374,15 +393,18 @@ def shop(request, server_id):
         check_server_exists = Server.objects.get(id=server_id)
     except:
         return render(request, '404.html')
+
     products = Product.objects.filter(server__id=server_id)
     purchases = Purchase.objects.filter(product__server__id=server_id, status=1).order_by('-id')[0:5]
     payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+
     context = {
         'server': check_server_exists,
         'products': products,
         'purchases': purchases,
         'payment_operators': payment_operators
     }
+
     return render(request, 'shop.html', context=context)
 
 

@@ -56,7 +56,7 @@ class Purchase(models.Model):
     buyer = models.CharField(max_length=32)
     lvlup_id = models.CharField(max_length=16)
     status = models.IntegerField()
-    date = models.DateTimeField(default=timezone.localtime(timezone.now()), blank=True)
+    date = models.DateTimeField(default=timezone.now(), blank=True)
 
 
 class Voucher(models.Model):

@@ -137,7 +137,7 @@ p {
     justify-content: center;
     flex-direction: column;
 }
-.sponsor {
+.sponsor, .likemc {
     max-height: 120px;
     max-width: 100%;
     object-fit: contain;
