@@ -12,6 +12,7 @@ body {
 }
 .cards {
     margin-top: 30px;
+    justify-content: center;
 }
 .card {
     flex: auto;

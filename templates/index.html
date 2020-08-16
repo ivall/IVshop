@@ -34,8 +34,9 @@
                     </div>
                   </div>
                 </div>
-            {% for server in data %}
+
                 <div class="row cards">
+                {% for server in data %}
                     <div class="col card" style="max-width: 30rem;">
                       <div class="card-body">
                         <h4 class="card-title">{{ server.server_name }}</h4>
@@ -51,8 +52,9 @@
                         <a href="/panel/{{ server.id }}" class="btn btn-primary">Zarządzaj</a>
                       </div>
                     </div>
+                {% endfor %}
                 </div>
-            {% endfor %}
+
                         <div class="sponsors">
                 <a href="https://likemc.pl/" target="_blank">
                     <img class="likemc" src="https://likemc.pl/reklamas/reklama_1200x120.png" alt="likemc">
