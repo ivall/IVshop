@@ -12,7 +12,6 @@ urlpatterns = [
     path('add_operator/<operator_type>', views.add_operator, name='add_operator'),
     path('save_settings2/', views.save_settings2, name='save_settings2'),
     path('remove_product/', views.remove_product, name='remove_product'),
-    path('product_info/', views.product_info, name='product_info'),
     path('generate_voucher/', views.generate_voucher, name='generate_voucher'),
     path('customize_website/', views.customize_website, name='customize_website'),
     path('remove_payment_operator/', views.remove_payment_operator, name='remove_payment_operator'),

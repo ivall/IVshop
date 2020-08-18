@@ -142,4 +142,5 @@ p {
     max-height: 120px;
     max-width: 100%;
     object-fit: contain;
+    margin-top: 15px;
 }

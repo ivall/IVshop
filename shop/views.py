@@ -321,26 +321,6 @@ def remove_product(request):
 
 @csrf_exempt
 @login_required
-def product_info(request):
-    product_id = request.GET.get('product_id')
-    product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
-
-    if not product.exists():
-        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
-
-    return JsonResponse({
-        'product_name': product[0].product_name,
-        'product_description': product[0].product_description,
-        'lvlup_sms_number': product[0].lvlup_sms_number,
-        'lvlup_other_price': product[0].lvlup_other_price,
-        'microsms_sms_number': product[0].microsms_sms_number,
-        'commands': product[0].product_commands,
-        'product_image': product[0].product_image
-    })
-
-
-@csrf_exempt
-@login_required
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
     product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])

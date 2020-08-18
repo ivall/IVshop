@@ -295,7 +295,7 @@ $(document).ready(function() {
     $(document).on("click", ".open_edit_product_button", function () {
         var product_id = $(this).attr('product_id');
         $.ajax({
-            url: '/product_info/',
+            url: '/api/product/',
             type: 'GET',
             data: {product_id: product_id},
             success: function (data) {
@@ -305,12 +305,12 @@ $(document).ready(function() {
                 $('#edit_lvlup_other_price').val(data.lvlup_other_price);
                 $('#edit_lvlup_sms_price').val(data.lvlup_sms_number);
                 $('#edit_microsms_sms_price').val(data.microsms_sms_number);
-                $('#edit_product_commands').val(data.commands);
+                $('#edit_product_commands').val(data.product_commands);
                 $('#edit_product_image').val(data.product_image);
                 $('#editProductModal').modal('show');
             },
             error: function (data) {
-                toastr.error(data.responseJSON.message);
+                toastr.error(data.responseJSON.detail);
             }
         });
     });
