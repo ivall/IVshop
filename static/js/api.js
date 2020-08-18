@@ -295,9 +295,8 @@ $(document).ready(function() {
     $(document).on("click", ".open_edit_product_button", function () {
         var product_id = $(this).attr('product_id');
         $.ajax({
-            url: '/api/product/',
+            url: '/api/product/'+product_id,
             type: 'GET',
-            data: {product_id: product_id},
             success: function (data) {
                 $('.edit_product_button').attr('product_id', product_id);
                 $('#edit_product_name').val(data.product_name);
