@@ -13,7 +13,7 @@ html::before, body::before {
 }
 
 html *:not(input) {color: #dcdcdc !important}
-html *:not(.toast):not(.toast-message):not(.toast-close-button) {background-color: rgb(41, 41, 41, 0.90) !important}
+html *:not(.toast):not(.toast-message):not(.toast-close-button):not(img) {background-color: rgb(41, 41, 41, 0.90) !important}
 
 html *, html *[id], html *[class] {
   box-shadow: none !important;
