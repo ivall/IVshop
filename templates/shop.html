@@ -80,9 +80,9 @@
   {% endif %}
   <div class="card-body product_body_text">
     <h4 class="card-title">{{ product.product_name }}</h4>
-    <p class="card-text">
-        {{ product.product_description }}
-    </p>
+    <div class="card-text">
+        {{ product.product_description|safe }}
+    </div>
     <div class="payment_methods">
         <div class="custom-controls-stacked" style="display: inline-flex;">
         {% for po in payment_operators %}

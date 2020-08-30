@@ -144,3 +144,12 @@ p {
     object-fit: contain;
     margin-top: 15px;
 }
+.cke_chrome {
+    width: 100% !important;
+}
+.add-edit-product {
+    width: 700px;
+}
+.add-edit-product-form {
+    max-width: 100%;
+}

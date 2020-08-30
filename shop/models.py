@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from ckeditor.fields import RichTextField
 
 
 class Server(models.Model):
@@ -41,7 +42,7 @@ class PaymentOperator(models.Model):
 
 class Product(models.Model):
     product_name = models.CharField(max_length=100)
-    product_description = models.CharField(max_length=200)
+    product_description = RichTextField(max_length=200)
     server = models.ForeignKey(Server, on_delete=models.CASCADE)
     product_commands = models.CharField(max_length=2000)
     product_image = models.URLField(blank=True, default="")

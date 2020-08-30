@@ -29,7 +29,7 @@ $(document).ready(function() {
         $('.add_product_button').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         var server_id = $("#server_id").val();
         var product_name = $("#product_name").val();
-        var product_description = $("#product_description").val();
+        var product_description = CKEDITOR.instances.id_product_description1.getData();
         var product_commands = $("#product_commands").val();
         var product_image = $("#product_image").val();
         var lvlup_other_price = $("#lvlup_other_price").val();
@@ -300,7 +300,7 @@ $(document).ready(function() {
             success: function (data) {
                 $('.edit_product_button').attr('product_id', product_id);
                 $('#edit_product_name').val(data.product_name);
-                $('#edit_product_description').val(data.product_description);
+                CKEDITOR.instances.id_product_description.setData(data.product_description);
                 $('#edit_lvlup_other_price').val(data.lvlup_other_price);
                 $('#edit_lvlup_sms_price').val(data.lvlup_sms_number);
                 $('#edit_microsms_sms_price').val(data.microsms_sms_number);
@@ -316,7 +316,7 @@ $(document).ready(function() {
     $(document).on("click", ".edit_product_button", function () {
         var product_id = $(this).attr('product_id');
         var product_name = $("#edit_product_name").val();
-        var product_description = $("#edit_product_description").val();
+        var product_description = CKEDITOR.instances.id_product_description.getData();
         var lvlup_other_price = $("#edit_lvlup_other_price").val();
         var lvlup_sms_price = $("#edit_lvlup_sms_price").val();
         var microsms_sms_price = $("#edit_microsms_sms_price").val();

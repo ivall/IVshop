@@ -15,6 +15,8 @@ from shop.utils.functions import authorize_panel, send_commands, check_rcon_conn
 
 from .models import Server, PaymentOperator, Product, Purchase, Voucher
 
+from shop.forms import ProductDescriptionForm
+
 if not settings.DEBUG:
     from shop.utils.functions import actualize_servers_data
 
@@ -135,7 +137,8 @@ def panel(request, server_id):
             'rcon_port': server.rcon_port,
             'payment_operators': payment_operators,
             'assigned_operators': exclude,
-            'discord_webhook': server.discord_webhook
+            'discord_webhook': server.discord_webhook,
+            'ProductDescriptionForm': ProductDescriptionForm,
         }
 
         return render(request, 'panel.html', context=context)
