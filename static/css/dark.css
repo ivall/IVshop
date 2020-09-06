@@ -1,57 +1,31 @@
-html, body {
-  color: #dcdcdc !important;
-  background-image: none !important;
-  background-color: #292929 !important;
+body {
+    background-color: #222;
+    color: #ddd;
 }
 
-.card, .modal-dialog {
-    border: 1px solid white;
+.card {
+    background-color: #171717;
+    box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
 }
 
-html::before, body::before {
-  background-image: none !important;
+.card-title {
+    color: #fff;
+}
+.form-control {
+    background-color: #101010 !important;
+    border-color: #202020;
+    color: #ddd !important;
+}
+.form-control:hover {
+    border-color: #101010;
+    background-color: #202020;
+
 }
 
-html *:not(input) {color: #dcdcdc !important}
-html *:not(.toast):not(.toast-message):not(.toast-close-button):not(img) {background-color: rgb(41, 41, 41, 0.90) !important}
-
-html *, html *[id], html *[class] {
-  box-shadow: none !important;
-  text-shadow: none !important;
-  border-radius: unset !important;
-  border-color: #555555 !important;
-  outline-color: #555555 !important;
+.modal-header, .modal-body, .modal-footer, .modal-title{
+    background-color: #171717;
+    color: #fff;
 }
-
-img, img[src] {
-  z-index: 1;
-  filter: brightness(0.85) !important;
-  background-color: initial !important;
+.modal-content {
+    box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
 }
-
-video, video[src] {
-  z-index: 1;
-  background-color: transparent !important;
-}
-
-input:not([type='button']):not([type='submit']) {
-  color: #dcdcdc !important;
-  background-image: none !important;
-  background-color: #333333 !important;
-}
-
-textarea, textarea[class], input[type='text'], input[type='text'][class] {
-  color: #dcdcdc !important;
-  background-color: #555555 !important;
-}
-
-svg:not([fill]) {fill: #7d7d7d !important}
-li, select {background-image: none !important}
-input[type='text'], input[type='search'] {text-indent: 10px}
-a {background-color: rgba(255, 255, 255, 0.01) !important}
-html cite, html cite *, html cite *[class] {color: #029833 !important}
-svg[fill], button, input[type='button'], input[type='submit'] {opacity: 0.85 !important}
-
-:before {color: #dcdcdc !important}
-:link:not(cite), :link *:not(cite) {color: #8db2e5 !important}
-:visited, :visited *, :visited *[class] {color: rgb(211, 138, 138) !important}

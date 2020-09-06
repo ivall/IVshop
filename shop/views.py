@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.conf import settings
-from lvluppayments import Payments
+from lvluppayments.payments import Payments
 
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, \

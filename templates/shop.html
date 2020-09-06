@@ -81,7 +81,7 @@
   <div class="card-body product_body_text">
     <h4 class="card-title">{{ product.product_name }}</h4>
     <div class="card-text">
-        {{ product.product_description|safe }}
+        {{ product.product_description|safe|escape }}
     </div>
     <div class="payment_methods">
         <div class="custom-controls-stacked" style="display: inline-flex;">
