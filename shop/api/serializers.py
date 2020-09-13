@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from shop.models import Server, Product
+from shop.models import Server, Product, Purchase
 
 
 class ServerSerializer(serializers.ModelSerializer):
@@ -16,3 +16,4 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ('product_name', 'product_description', 'server_id', 'product_commands',
                   'product_image', 'lvlup_other_price', 'lvlup_sms_number', 'microsms_sms_number')
+

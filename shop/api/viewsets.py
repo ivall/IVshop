@@ -40,3 +40,4 @@ class ProductViewSet(viewsets.ViewSet):
         queryset = get_object_or_404(Product, id=pk, server__owner_id=request.session['user_id'])
         serializer = ProductSerializer(queryset)
         return Response(serializer.data)
+

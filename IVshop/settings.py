@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'iibu3ks3iq6t!eiqo2oj*^nh7xni)&e=0pffgg)g-^bgqh1^m^'
+SECRET_KEY = 'twój secret key ;)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'rest_framework',
-    'ckeditor'
+    'ckeditor',
 ]
 
 if not DEBUG:
@@ -123,7 +123,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 if not DEBUG:
-    STATIC_ROOT = "/var/www/myproject/static/"
+    STATIC_ROOT = "/var/www/myproject/static/"  # Tutaj ustaw sobie ścieżkę do plików statyczny na prodzie
 else:
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, "static")

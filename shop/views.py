@@ -598,3 +598,14 @@ def use_voucher(request):
 
 def success_page(request):
     return render(request, 'success.html')
+
+"""
+import json
+def plugin_api(request, server_id, api_key):
+    purchases = Purchase.objects.filter(product__server_id=server_id, valid=True).values('product__product_commands')
+    print(purchases[]['product__product_commands'])
+    return JsonResponse({'valid': True, 'data': data})
+"""
+
+
+

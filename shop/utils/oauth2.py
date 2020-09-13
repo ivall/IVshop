@@ -6,8 +6,8 @@ class Oauth(object):
     def __init__(self):
         redirect_uri = self.redirect_uri
     # must add your own client and secret id
-    client_id = "727655489986625606"
-    client_secret = "FTtwYvFWMt8G7I3TUjjG09T4YQeTh3QV"
+    client_id = "id waszej aplikacji"
+    client_secret = "a tutaj sekretny klucz waszej aplikacji :D"
     # from the dicord login url string
     scope = "identify"
     if settings.DEBUG:
