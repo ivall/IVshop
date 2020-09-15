@@ -69,7 +69,6 @@ def callback(request):
     return redirect('/')
 
 
-@csrf_exempt
 @login_required
 def add_server(request):
     server_name = request.POST.get("server_name")
@@ -146,7 +145,6 @@ def panel(request, server_id):
         return authorize_panel(request, server_id)
 
 
-@csrf_exempt
 @login_required
 def add_product(request):
     server_id = request.POST.get("server_id")
@@ -179,13 +177,10 @@ def add_product(request):
 
     for po in check_payment_type:
         if po.operator_type == 'lvlup_sms' and not lvlup_sms_number:
-            print('1')
             return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
         elif po.operator_type == 'lvlup_other' and not lvlup_other_price:
-            print('2')
             return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
         elif po.operator_type == 'microsms_sms' and not microsms_sms_number:
-            print('3')
             return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if lvlup_other_price:
@@ -220,7 +215,6 @@ def add_product(request):
         return JsonResponse({'message': 'Dodano produkt.'}, status=200)
 
 
-@csrf_exempt
 @login_required
 def add_operator(request, operator_type):
     if operator_type not in ['lvlup_sms', 'lvlup_other', 'microsms_sms']:
@@ -280,7 +274,6 @@ def add_operator(request, operator_type):
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
 
-@csrf_exempt
 @login_required
 def save_settings2(request):
     server_id = request.POST.get("server_id")
@@ -309,7 +302,6 @@ def save_settings2(request):
     return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
 
-@csrf_exempt
 @login_required
 def remove_product(request):
     product_id = request.POST.get('product_id')
@@ -322,7 +314,6 @@ def remove_product(request):
     return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
 
 
-@csrf_exempt
 @login_required
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
@@ -342,7 +333,6 @@ def generate_voucher(request):
     return JsonResponse({'message': 'Voucher został wygenerowany. Znajdziesz go w liście voucherów.'}, status=200)
 
 
-@csrf_exempt
 @login_required
 def customize_website(request):
     server_id = request.POST.get("server_id")
@@ -356,7 +346,6 @@ def customize_website(request):
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 
 
-@csrf_exempt
 @login_required
 def remove_payment_operator(request):
     operator_id = request.POST.get("operator_id")
@@ -391,7 +380,7 @@ def shop(request, server_id):
     return render(request, 'shop.html', context=context)
 
 
-@csrf_exempt
+
 def buy_sms(request):
     player_nick = request.POST.get('player_nick')
     sms_code = request.POST.get('sms_code')
@@ -494,7 +483,7 @@ def buy_sms(request):
             return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
 
-@csrf_exempt
+
 def buy_other(request):
     product_id = request.POST.get('product_id')
     player_nick = request.POST.get('player_nick')
@@ -534,7 +523,7 @@ def buy_other(request):
     return JsonResponse({'message': url}, status=200)
 
 
-@csrf_exempt
+
 def lvlup_check(request):
     data = json.loads(request.body)
     paymentId = data['paymentId']
@@ -568,7 +557,7 @@ def lvlup_check(request):
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
 
 
-@csrf_exempt
+
 def use_voucher(request):
     player_nick = request.POST.get('player_nick')
     voucher_code = request.POST.get('voucher_code')

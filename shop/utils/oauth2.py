@@ -1,13 +1,14 @@
 import requests
 from django.conf import settings
+from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET
 
 
 class Oauth(object):
     def __init__(self):
         redirect_uri = self.redirect_uri
     # must add your own client and secret id
-    client_id = "id waszej aplikacji"
-    client_secret = "a tutaj sekretny klucz waszej aplikacji :D"
+    client_id = DISCORD_CLIENT_ID
+    client_secret = DISCORD_CLIENT_SECRET
     # from the dicord login url string
     scope = "identify"
     if settings.DEBUG:

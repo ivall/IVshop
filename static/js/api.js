@@ -1,4 +1,27 @@
 $(document).ready(function() {
+    $.ajaxSetup({
+     beforeSend: function(xhr, settings) {
+         function getCookie(name) {
+             var cookieValue = null;
+             if (document.cookie && document.cookie != '') {
+                 var cookies = document.cookie.split(';');
+                 for (var i = 0; i < cookies.length; i++) {
+                     var cookie = jQuery.trim(cookies[i]);
+                     // Does this cookie string begin with the name we want?
+                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                         break;
+                     }
+                 }
+             }
+             return cookieValue;
+         }
+         if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+             // Only send the token to relative URLs i.e. locally.
+             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+         }
+     }
+});
     $(document).on("click", ".add-server", function () {
         $('.add-server').prop('disabled', true);
         $('.add-server').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
@@ -9,7 +32,7 @@ $(document).ready(function() {
         $.ajax({
             url: '/add_server/',
             type: 'POST',
-            data: {server_name: server_name, server_ip: server_ip, rcon_password: rcon_password, rcon_port: rcon_port},
+            data: {server_name: server_name, server_ip: server_ip, rcon_password: rcon_password, rcon_port: rcon_port, },
             success: function (data) {
                 $(".server-ip").val("");
                 toastr.success(data.message);

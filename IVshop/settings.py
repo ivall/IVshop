@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from config import DJANGO_SECRET_KEY
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'twój secret key ;)'
+SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,7 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'rest_framework',
     'ckeditor',
+    'sanitizer'
 ]
+
+SANITIZER_ALLOWED_TAGS = ['a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'br', 'span', 'pre', 'em', 's', 'u', 'img']
+SANITIZER_ALLOWED_ATTRIBUTES = ['href', 'style', 'src', 'alt', 'style']
 
 if not DEBUG:
     REST_FRAMEWORK = {

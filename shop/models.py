@@ -16,7 +16,6 @@ class Server(models.Model):
     own_css = models.URLField(blank=True)
     shop_style = models.CharField(max_length=5, default="light")
     discord_webhook = models.URLField(blank=True)
-    api_key = models.CharField(blank=True, max_length=8)
 
 
 """
@@ -59,7 +58,6 @@ class Purchase(models.Model):
     lvlup_id = models.CharField(max_length=16)
     status = models.IntegerField()
     date = models.DateTimeField(default=timezone.now(), blank=True)
-    valid = models.BooleanField(default=True)  # Dla pluginu
 
 
 class Voucher(models.Model):

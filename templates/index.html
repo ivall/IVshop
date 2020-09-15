@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block body %}
     <div class="container">
+    <div class="alert alert-warning" role="alert">
+      IVshop przeszedł na projekt opensource, repozytorium: <a href="https://github.com/ivall/ivshop">https://github.com/ivall/ivshop</a>
+    </div>
         {% if request.session.username %}
                 <div class="add-server-button d-flex justify-content-center">
                     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addServerModal">Dodaj serwer</button>
@@ -68,6 +71,9 @@
                     <a href="https://dasddas.me/" target="_blank">
                         <img class="likemc" src="https://dasddas.me/baner.png?ds" alt="dasddas">
                     </a>
+                    <a href="http://daszdas.sosnowiec.pl/masny_fabianek.gif" target="_blank">
+                        <img class="likemc" src="http://daszdas.sosnowiec.pl/apng/ez.png" alt="fabian sosnowiec">
+                    </a>
                     <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
             </div>
         {% else %}
@@ -99,6 +105,9 @@
                 </a>
                 <a href="https://dasddas.me/" target="_blank">
                     <img class="likemc" src="https://dasddas.me/baner.png?ds" alt="dasddas">
+                </a>
+                <a href="http://daszdas.sosnowiec.pl/masny_fabianek.gif" target="_blank">
+                    <img class="likemc" src="http://daszdas.sosnowiec.pl/apng/ez.png" alt="fabian sosnowiec">
                 </a>
                 <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
             </div>

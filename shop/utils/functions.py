@@ -33,7 +33,6 @@ def send_webhook_discord(webhook_url, buyer, product_name):
                 "color": 3066993,
                 "description": f"Gracz **{buyer}** zakupił **{product_name}**. Dziękujemy! :heart:"
             }],
-        "username": "IVshop"
     }
 
     r = requests.post(webhook_url, json=json_payload)

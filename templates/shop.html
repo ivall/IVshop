@@ -1,4 +1,5 @@
 {% load static %}
+{% load sanitizer %}
 {% load change from number_to_price %}
 {% load change2 from number_to_price %}
 <!DOCTYPE html>
@@ -81,7 +82,7 @@
   <div class="card-body product_body_text">
     <h4 class="card-title">{{ product.product_name }}</h4>
     <div class="card-text">
-        {{ product.product_description|safe|escape }}
+        {{ product.product_description|strip_html|safe|escape }}
     </div>
     <div class="payment_methods">
         <div class="custom-controls-stacked" style="display: inline-flex;">
