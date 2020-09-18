@@ -359,7 +359,7 @@ def remove_payment_operator(request):
     messages.add_message(request, messages.SUCCESS, 'Operator został usunięty.')
     return JsonResponse({'message': 'Operator został usunięty.'}, status=200)
 
-
+@csrf_exempt
 def shop(request, server_id):
     try:
         check_server_exists = Server.objects.get(id=server_id)
@@ -380,7 +380,7 @@ def shop(request, server_id):
     return render(request, 'shop.html', context=context)
 
 
-
+@csrf_exempt
 def buy_sms(request):
     player_nick = request.POST.get('player_nick')
     sms_code = request.POST.get('sms_code')
@@ -483,7 +483,7 @@ def buy_sms(request):
             return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
 
-
+@csrf_exempt
 def buy_other(request):
     product_id = request.POST.get('product_id')
     player_nick = request.POST.get('player_nick')
@@ -523,7 +523,7 @@ def buy_other(request):
     return JsonResponse({'message': url}, status=200)
 
 
-
+@csrf_exempt
 def lvlup_check(request):
     data = json.loads(request.body)
     paymentId = data['paymentId']
@@ -557,7 +557,7 @@ def lvlup_check(request):
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
 
 
-
+@csrf_exempt
 def use_voucher(request):
     player_nick = request.POST.get('player_nick')
     voucher_code = request.POST.get('voucher_code')
@@ -585,6 +585,7 @@ def use_voucher(request):
     return JsonResponse({'message': 'Voucher został wykorzystany.'}, status=200)
 
 
+@csrf_exempt
 def success_page(request):
     return render(request, 'success.html')
 
