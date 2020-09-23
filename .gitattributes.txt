@@ -1,0 +1,4 @@
+static/rest_framework/* linguist-vendored
+static/admin/* linguist-vendored
+static/ckeditor/* linguist-vendored
+static/js/shards.min.js linguist-vendored

@@ -22,7 +22,7 @@ if not settings.DEBUG:
 
     actualize_servers_data()
 
-
+@csrf_exempt
 def index(request):
     if 'username' and 'user_id' in request.session:
         data = Server.objects.filter(owner_id=request.session['user_id'])
@@ -30,11 +30,11 @@ def index(request):
         return render(request, "index.html", context)
     return render(request, "index.html")
 
-
+@csrf_exempt
 def handler404(request, exception):
     return render(request, '404.html', status=404)
 
-
+@csrf_exempt
 def login(request):
     if 'username' not in request.session:
         return redirect(Oauth.discord_login_url)
@@ -42,7 +42,7 @@ def login(request):
     del request.session['user_id']
     return redirect(Oauth.discord_login_url)
 
-
+@csrf_exempt
 def logout(request):
     if 'username' in request.session:
         del request.session['username']
@@ -51,7 +51,7 @@ def logout(request):
     messages.add_message(request, messages.ERROR, 'Nie jesteś zalogowany.')
     return redirect('/')
 
-
+@csrf_exempt
 def callback(request):
     if 'username' not in request.session:
         try:
@@ -68,7 +68,7 @@ def callback(request):
     messages.add_message(request, messages.ERROR, 'Jesteś już zalogowany.')
     return redirect('/')
 
-
+@csrf_exempt
 @login_required
 def add_server(request):
     server_name = request.POST.get("server_name")
@@ -100,7 +100,7 @@ def add_server(request):
     i.save()
     return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
 
-
+@csrf_exempt
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
         counted_sells = {}
@@ -144,7 +144,7 @@ def panel(request, server_id):
     else:
         return authorize_panel(request, server_id)
 
-
+@csrf_exempt
 @login_required
 def add_product(request):
     server_id = request.POST.get("server_id")
@@ -214,7 +214,7 @@ def add_product(request):
         p.save()
         return JsonResponse({'message': 'Dodano produkt.'}, status=200)
 
-
+@csrf_exempt
 @login_required
 def add_operator(request, operator_type):
     if operator_type not in ['lvlup_sms', 'lvlup_other', 'microsms_sms']:
@@ -273,7 +273,7 @@ def add_operator(request, operator_type):
         return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
 
-
+@csrf_exempt
 @login_required
 def save_settings2(request):
     server_id = request.POST.get("server_id")
@@ -301,7 +301,7 @@ def save_settings2(request):
 
     return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
-
+@csrf_exempt
 @login_required
 def remove_product(request):
     product_id = request.POST.get('product_id')
@@ -313,7 +313,7 @@ def remove_product(request):
     product_to_delete.delete()
     return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
 
-
+@csrf_exempt
 @login_required
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
@@ -332,7 +332,7 @@ def generate_voucher(request):
 
     return JsonResponse({'message': 'Voucher został wygenerowany. Znajdziesz go w liście voucherów.'}, status=200)
 
-
+@csrf_exempt
 @login_required
 def customize_website(request):
     server_id = request.POST.get("server_id")
@@ -345,7 +345,7 @@ def customize_website(request):
 
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 
-
+@csrf_exempt
 @login_required
 def remove_payment_operator(request):
     operator_id = request.POST.get("operator_id")
