@@ -100,6 +100,7 @@ def add_server(request):
     i.save()
     return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
 
+
 @csrf_exempt
 def panel(request, server_id):
     if authorize_panel(request, server_id) is True:
@@ -388,9 +389,11 @@ def buy_sms(request):
     product_id = request.POST.get('product_id')
     if not player_nick or not sms_code or not product_id or not sms_number:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+
     pattern = re.compile('^\w{3,16}$')
     if not pattern.match(player_nick):
         return JsonResponse({'message': 'Niepoprawny format nicku.'}, status=406)
+
     if request.POST.get("payment_type") == "1":
         product = Product.objects.filter(id=product_id, lvlup_sms_number=sms_number).values('server__server_ip',
                                                                                       'server__rcon_password',
@@ -565,6 +568,10 @@ def use_voucher(request):
     if not player_nick or not voucher_code or not server_id:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
 
+    pattern = re.compile('^\w{3,16}$')
+    if not pattern.match(player_nick):
+        return JsonResponse({'message': 'Niepoprawny format nicku.'}, status=406)
+
     voucher = Voucher.objects.filter(code=voucher_code, status=0, product__server_id=server_id).values(
         'product__server__server_ip',
         'product__server__rcon_password',
@@ -576,6 +583,7 @@ def use_voucher(request):
     rcon_password = voucher[0]['product__server__rcon_password']
     commands = voucher[0]['product__product_commands'].split(';')
     rcon_port = voucher[0]['product__server__rcon_port']
+    
     try:
         send_commands(server_ip, rcon_password, commands, player_nick, rcon_port)
     except:
