@@ -284,10 +284,11 @@ $(document).ready(function() {
     $(document).on("click", ".remove_product", function () {
         $(this).prop('disabled', true);
         var product_id = $(this).attr('product_id');
+        var server_id = $("#server_id").val();
         $.ajax({
             url: '/remove_product/',
             type: 'POST',
-            data: {product_id: product_id},
+            data: {product_id: product_id, server_id: server_id},
             success: function (data) {
                 toastr.success(data.message);
                 $('.product'+product_id).remove();
@@ -302,10 +303,11 @@ $(document).ready(function() {
     $(document).on("click", ".remove_payment_operator", function () {
         $(this).prop('disabled', true);
         var operator_id = $(this).attr('operator_id');
+        var server_id = $("#server_id").val();
         $.ajax({
             url: '/remove_payment_operator/',
             type: 'POST',
-            data: {operator_id: operator_id},
+            data: {operator_id: operator_id, server_id: server_id},
             success: function () {
                 location.reload();
             },
@@ -317,9 +319,11 @@ $(document).ready(function() {
     });
     $(document).on("click", ".open_edit_product_button", function () {
         var product_id = $(this).attr('product_id');
+        var server_id = $("#server_id").val();
         $.ajax({
             url: '/api/product/'+product_id,
             type: 'GET',
+            data: {server_id: server_id},
             success: function (data) {
                 $('.edit_product_button').attr('product_id', product_id);
                 $('#edit_product_name').val(data.product_name);
@@ -363,10 +367,11 @@ $(document).ready(function() {
     });
     $(document).on("click", ".generate_voucher_button", function () {
         var product_id = $('#add_voucher_product').val();
+        var server_id = $("#server_id").val();
         $.ajax({
             url: '/generate_voucher/',
             type: 'POST',
-            data: {product_id: product_id},
+            data: {product_id: product_id, server_id: server_id},
             success: function (data) {
                 $('#addVoucherModal').modal('hide');
                 toastr.success(data.message)
@@ -380,7 +385,6 @@ $(document).ready(function() {
         var player_nick = $('#voucher_nick').val();
         var voucher_code = $('#voucher_code').val();
         var server_id = $('#server_id').val();
-        console.log(server_id);
         $.ajax({
             url: '/use_voucher/',
             type: 'POST',
@@ -399,10 +403,11 @@ $(document).ready(function() {
         var own_css = $('#server_own_css').val();
         var shop_style = $('#shop_style').val();
         var discord_webhook = $('#discord_webhook').val();
+        var admins = $('#admins').val();
         $.ajax({
             url: '/customize_website/',
             type: 'POST',
-            data: {server_id: server_id, server_logo: server_logo, own_css: own_css, shop_style: shop_style, discord_webhook: discord_webhook},
+            data: {server_id: server_id, server_logo: server_logo, own_css: own_css, shop_style: shop_style, discord_webhook: discord_webhook, admins: admins},
             success: function (data) {
                 toastr.success(data.message)
             },

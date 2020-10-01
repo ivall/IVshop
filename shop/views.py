@@ -25,7 +25,16 @@ if not settings.DEBUG:
 @csrf_exempt
 def index(request):
     if 'username' and 'user_id' in request.session:
-        data = Server.objects.filter(owner_id=request.session['user_id'])
+        data = []
+        user_id = request.session['user_id']
+        to_data = Server.objects.all()
+        for server in to_data:
+            try:
+                admins = server.admins.split(',')
+            except:
+                admins = []
+            if server.owner_id == int(user_id) or user_id in admins:
+                data.append(server)
         context = {'data': data}
         return render(request, "index.html", context)
     return render(request, "index.html")
@@ -68,9 +77,12 @@ def callback(request):
     messages.add_message(request, messages.ERROR, 'Jesteś już zalogowany.')
     return redirect('/')
 
+
 @csrf_exempt
-@login_required
 def add_server(request):
+    if not 'user_id' in request.session:
+        return JsonResponse({'message': 'Nie jesteś zalogowany.'}, status=401)
+
     server_name = request.POST.get("server_name")
     server_ip = request.POST.get("server_ip")
     rcon_password = request.POST.get("rcon_password")
@@ -100,50 +112,48 @@ def add_server(request):
     i.save()
     return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
 
-
 @csrf_exempt
+@login_required
 def panel(request, server_id):
-    if authorize_panel(request, server_id) is True:
-        counted_sells = {}
-        exclude = []
-        counted_products = Product.objects.filter(server__id=server_id).count()
-        purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
-        purchases = Purchase.objects.filter(product__server__id=server_id).order_by('-date')
-        server = Server.objects.get(id=server_id)
-        products = Product.objects.filter(server__id=server_id)
-        vouchers = Voucher.objects.filter(product__server__id=server_id)
-        payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+    counted_sells = {}
+    exclude = []
+    counted_products = Product.objects.filter(server__id=server_id).count()
+    purchases_count = Purchase.objects.filter(product__server__id=server_id, status=1).count()
+    purchases = Purchase.objects.filter(product__server__id=server_id).order_by('-date')
+    server = Server.objects.get(id=server_id)
+    products = Product.objects.filter(server__id=server_id)
+    vouchers = Voucher.objects.filter(product__server__id=server_id)
+    payment_operators = PaymentOperator.objects.filter(server__id=server_id)
 
-        for po in payment_operators:
-            if po.operator_type == 'lvlup_sms' or po.operator_type == 'lvlup_other' or po.operator_type == 'microsms_sms':
-                exclude.append(po.operator_type)
+    for po in payment_operators:
+        if po.operator_type == 'lvlup_sms' or po.operator_type == 'lvlup_other' or po.operator_type == 'microsms_sms':
+            exclude.append(po.operator_type)
 
-        for product in products:
-            count = Purchase.objects.filter(product_id=product.id, status=1).count()
-            counted_sells.update({str(product.id): count})
+    for product in products:
+        count = Purchase.objects.filter(product_id=product.id, status=1).count()
+        counted_sells.update({str(product.id): count})
 
-        context = {
-            'server_id': server_id,  # Wiem, że rak, do zmiany xD
-            'server_name': server.server_name,
-            'server_ip': server.server_ip,
-            'counted_products': counted_products,
-            'purchases_count': purchases_count,
-            'purchases': purchases,
-            'products': products,
-            'counted_sells': counted_sells,
-            'vouchers': vouchers,
-            'server_logo': server.logo,
-            'own_css': server.own_css,
-            'rcon_port': server.rcon_port,
-            'payment_operators': payment_operators,
-            'assigned_operators': exclude,
-            'discord_webhook': server.discord_webhook,
-            'ProductDescriptionForm': ProductDescriptionForm,
-        }
+    context = {
+        'server_id': server_id,  # Wiem, że rak, do zmiany xD
+        'server_name': server.server_name,
+        'server_ip': server.server_ip,
+        'counted_products': counted_products,
+        'purchases_count': purchases_count,
+        'purchases': purchases,
+        'products': products,
+        'counted_sells': counted_sells,
+        'vouchers': vouchers,
+        'server_logo': server.logo,
+        'own_css': server.own_css,
+        'rcon_port': server.rcon_port,
+        'payment_operators': payment_operators,
+        'assigned_operators': exclude,
+        'discord_webhook': server.discord_webhook,
+        'ProductDescriptionForm': ProductDescriptionForm,
+        'admins': server.admins
+    }
 
-        return render(request, 'panel.html', context=context)
-    else:
-        return authorize_panel(request, server_id)
+    return render(request, 'panel.html', context=context)
 
 @csrf_exempt
 @login_required
@@ -163,12 +173,12 @@ def add_product(request):
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
     if server_id:
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server__id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server__id=server_id)
 
     elif request.POST.get("product_id"):
         server_id = Product.objects.filter(id=request.POST.get("product_id")).values('server__id')
         server_id = server_id[0]['server__id']
-        check_payment_type = PaymentOperator.objects.filter(server__owner_id=request.session['user_id'], server_id=server_id)
+        check_payment_type = PaymentOperator.objects.filter(server_id=server_id)
 
     else:
         return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=404)
@@ -241,38 +251,37 @@ def add_operator(request, operator_type):
         if not client_id or not service_id or not sms_content:
             return JsonResponse({'message': 'Uzupełnij informacje o operatorze.'}, status=411)
 
-    authorize_user = Server.objects.filter(id=server_id).values('owner_id')
-    if authorize_user and str(authorize_user[0]['owner_id']) == request.session['user_id']:
-        if operator_type == 'lvlup_sms':
-            new_operator = PaymentOperator(
-                operator_type=operator_type,
-                operator_name=operator_name,
-                client_id=client_id,
-                server=Server.objects.get(id=server_id)
-            )
-            new_operator.save()
-        elif operator_type == 'lvlup_other':
-            new_operator = PaymentOperator(
-                operator_type=operator_type,
-                operator_name=operator_name,
-                api_key=api_key,
-                server=Server.objects.get(id=server_id)
-            )
-            new_operator.save()
-        elif operator_type == 'microsms_sms':
-            new_operator = PaymentOperator(
-                operator_type=operator_type,
-                operator_name=operator_name,
-                client_id=client_id,
-                service_id=service_id,
-                sms_content=sms_content,
-                server=Server.objects.get(id=server_id)
-            )
-            new_operator.save()
+    if operator_type == 'lvlup_sms':
+        new_operator = PaymentOperator(
+            operator_type=operator_type,
+            operator_name=operator_name,
+            client_id=client_id,
+            server=Server.objects.get(id=server_id)
+        )
+        new_operator.save()
 
-        messages.add_message(request, messages.SUCCESS, 'Dodano nowego operatora płatności.')
-        return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
-    return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+    elif operator_type == 'lvlup_other':
+        new_operator = PaymentOperator(
+            operator_type=operator_type,
+            operator_name=operator_name,
+            api_key=api_key,
+            server=Server.objects.get(id=server_id)
+        )
+        new_operator.save()
+
+    elif operator_type == 'microsms_sms':
+        new_operator = PaymentOperator(
+            operator_type=operator_type,
+            operator_name=operator_name,
+            client_id=client_id,
+            service_id=service_id,
+            sms_content=sms_content,
+            server=Server.objects.get(id=server_id)
+        )
+        new_operator.save()
+
+    messages.add_message(request, messages.SUCCESS, 'Dodano nowego operatora płatności.')
+    return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
 @csrf_exempt
 @login_required
@@ -286,10 +295,8 @@ def save_settings2(request):
     if not server_id or not server_name or not server_ip or not server_rcon_password or not server_rcon_port:
         return JsonResponse({'message': 'Uzupełnij informacje o serwerze.'}, status=411)
 
-    server = Server.objects.filter(id=server_id).values('owner_id')
+    server = Server.objects.filter(id=server_id)
 
-    if not server.exists() or not str(server[0]['owner_id']) == request.session['user_id']:
-        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
     if not check_rcon_connection(server_ip, server_rcon_password, server_rcon_port):
         return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
 
@@ -306,10 +313,10 @@ def save_settings2(request):
 @login_required
 def remove_product(request):
     product_id = request.POST.get('product_id')
-    product_to_delete = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+    product_to_delete = Product.objects.filter(id=product_id)
 
     if not product_to_delete.exists():
-        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+        return JsonResponse({'message': 'Taki produkt nie istnieje'}, status=401)
 
     product_to_delete.delete()
     return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
@@ -318,10 +325,10 @@ def remove_product(request):
 @login_required
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
-    product = Product.objects.filter(id=product_id, server__owner_id=request.session['user_id'])
+    product = Product.objects.filter(id=product_id)
 
     if not product.exists():
-        return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°)'}, status=401)
+        return JsonResponse({'message': 'Taki produkt nie istnieje.'}, status=401)
 
     code = generate_random_chars(6)
     v = Voucher(
@@ -333,25 +340,28 @@ def generate_voucher(request):
 
     return JsonResponse({'message': 'Voucher został wygenerowany. Znajdziesz go w liście voucherów.'}, status=200)
 
+
 @csrf_exempt
 @login_required
 def customize_website(request):
     server_id = request.POST.get("server_id")
 
-    Server.objects.select_for_update().filter(id=server_id, owner_id=request.session['user_id']).update(
+    Server.objects.select_for_update().filter(id=server_id).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"),
-        discord_webhook=request.POST.get("discord_webhook"))
+        discord_webhook=request.POST.get("discord_webhook"),
+        admins=request.POST.get("admins"))
 
     return JsonResponse({'message': 'Zapisano.'}, status=200)
+
 
 @csrf_exempt
 @login_required
 def remove_payment_operator(request):
     operator_id = request.POST.get("operator_id")
 
-    operator = PaymentOperator.objects.filter(id=operator_id, server__owner_id=request.session['user_id'])
+    operator = PaymentOperator.objects.filter(id=operator_id)
 
     if not operator.exists():
         return JsonResponse({'message': 'Nie znaleziono takiego operatora.'}, status=404)
@@ -583,7 +593,7 @@ def use_voucher(request):
     rcon_password = voucher[0]['product__server__rcon_password']
     commands = voucher[0]['product__product_commands'].split(';')
     rcon_port = voucher[0]['product__server__rcon_port']
-    
+
     try:
         send_commands(server_ip, rcon_password, commands, player_nick, rcon_port)
     except:

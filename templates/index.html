@@ -50,7 +50,12 @@
                             <span class="badge badge-danger">OFF</span>&nbsp;
                             {% endif %}
                             <span class="badge badge-light">{{ server.server_version }}</span>&nbsp;
-                            <span class="badge badge-light">{{ server.server_players }}</span>
+                            <span class="badge badge-light">{{ server.server_players }}</span>&nbsp;
+                            {% if server.owner_id|slugify == request.session.user_id %}
+                                <span class="badge badge-warning">Właściciel</span>
+                                {% else %}
+                                <span class="badge badge-primary">Administrator</span>
+                            {% endif %}
                         </p>
                         <a href="/panel/{{ server.id }}" class="btn btn-primary">Zarządzaj</a>
                       </div>
@@ -59,8 +64,9 @@
                 </div>
 
                 <div class="sponsors">
-                    <a href="https://ivall.pl" target="_blank">
-                        <img class="likemc" src="https://i.imgur.com/AOeOWA0.png" alt="ivall">
+                    <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
+                    <a href="https://dasddas.me/" target="_blank">
+                        <img class="likemc" src="https://dasddas.me/baner2.png" alt="dasddas">
                     </a>
                     <a href="https://craftblog.pl/" target="_blank">
                         <img class="likemc" src="https://cdn.discordapp.com/attachments/603937336232771604/751124114693161121/banner_1200_120.jpg" alt="craftblog">
@@ -71,7 +77,9 @@
                     <a href="https://dasddas.me/" target="_blank">
                         <img class="likemc" src="https://dasddas.me/baner.png?ds" alt="dasddas">
                     </a>
-                    <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
+                    <a href="https://ivall.pl" target="_blank">
+                        <img class="likemc" src="https://i.imgur.com/AOeOWA0.png" alt="ivall">
+                    </a>
             </div>
         {% else %}
             <h3 class="landing_page_header">Co to jest?</h3>
@@ -91,8 +99,9 @@
                 </div>
             </div>
             <div class="sponsors">
-                <a href="https://ivall.pl" target="_blank">
-                    <img class="likemc" src="https://i.imgur.com/AOeOWA0.png" alt="ivall">
+                <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
+                <a href="https://dasddas.me/" target="_blank">
+                    <img class="likemc" src="https://dasddas.me/baner2.png" alt="dasddas">
                 </a>
                 <a href="https://craftblog.pl/" target="_blank">
                     <img class="likemc" src="https://cdn.discordapp.com/attachments/603937336232771604/751124114693161121/banner_1200_120.jpg" alt="craftblog">
@@ -103,7 +112,9 @@
                 <a href="https://dasddas.me/" target="_blank">
                     <img class="likemc" src="https://dasddas.me/baner.png?ds" alt="dasddas">
                 </a>
-                <img class="sponsor" src="https://iili.io/dMkK0b.png" alt="sponsor" style="margin-top: 15px;">
+                <a href="https://ivall.pl" target="_blank">
+                    <img class="likemc" src="https://i.imgur.com/AOeOWA0.png" alt="ivall">
+                </a>
             </div>
         {% endif %}
     </div>

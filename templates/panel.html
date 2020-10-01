@@ -65,7 +65,7 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="" data-toggle="modal" data-target="#castomizationSite">Kastomizacja strony</a>
+                <a href="" data-toggle="modal" data-target="#castomizationSite">Ustawienia strony</a>
             </div>
         </div>
         <div class="alert alert-light" role="alert">
@@ -496,7 +496,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="castomizationSiteLabel">Ustawienia sklepu</h5>
+            <h5 class="modal-title" id="castomizationSiteLabel">Ustawienia strony</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -514,6 +514,8 @@
                   </select>
                   <label for="discord_webhook" class="col-form-label">Webhook discord</label>
                   <input type="url" name="discord_webhook" class="form-control castomization_site" id="discord_webhook" placeholder="Link do webhooka" value="{{ discord_webhook }}">
+                  <label for="admins" class="col-form-label">Osoby mające dostęp do panelu</label>
+                  <input type="url" name="admins" class="form-control castomization_site" id="admins" placeholder="Wymień id discord użytkowników po przecinku" value="{{ admins }}">
               </div>
           </div>
           <div class="modal-footer">

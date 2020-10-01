@@ -9,6 +9,7 @@ import random
 import string
 
 
+# Sprawdza, czy użytkownik jest zalogowany i posiada dostęp do zarządzania serwerem
 def login_required(function):
     def wrapper(request, *args, **kw):
         if not 'username' in request.session or not 'user_id' in request.session:
@@ -17,8 +18,29 @@ def login_required(function):
                 return redirect('/')
             else:
                 return JsonResponse({'message': 'Wystąpił błąd z sesją użytkownika.'}, status=401)
+
         else:
-            return function(request, *args, **kw)
+            try:
+                server_id = kw['server_id']
+            except KeyError as e:
+                server_id = request.POST.get('server_id')
+
+            user_id = request.session['user_id']
+            owner_id = Server.objects.filter(id=server_id).values('owner_id')
+
+            if not owner_id:
+                messages.add_message(request, messages.ERROR, 'Taki serwer nie istnieje.')
+                return redirect('/')
+
+            admins = Server.get_admins(server_id)
+            if int(user_id) == owner_id[0]['owner_id'] or user_id in admins:
+                return function(request, *args, **kw)
+
+            if request.method == 'GET':
+                messages.add_message(request, messages.ERROR, 'Nie posiadasz dostępu do tego serwera.')
+                return redirect('/')
+            else:
+                return JsonResponse({'message': 'Nie posiadasz dostępu do tego serwera.'}, status=401)
     return wrapper
 
 
@@ -36,7 +58,6 @@ def send_webhook_discord(webhook_url, buyer, product_name):
     }
 
     r = requests.post(webhook_url, json=json_payload)
-
 
 
 def send_commands(server_ip, rcon_password, commands, buyer, rcon_port):
@@ -67,16 +88,25 @@ def generate_random_chars(length):
 
 @login_required
 def authorize_panel(request, server_id):
-    check_user_is_owner = Server.objects.filter(id=server_id, owner_id=request.session['user_id'])
-    if check_user_is_owner:
+    admins = []
+    server = Server.objects.filter(id=server_id).values('owner_id', 'admins')
+    if not server:
+        messages.add_message(request, messages.ERROR, 'Taki serwer nie istnieje.')
+        return redirect('/')
+
+    if server[0]['admins']:
+        admins = Server.get_admins(server_id)
+    user_id = request.session['user_id']
+
+    if user_id in admins or int(user_id) == server[0]['owner_id']:
         return True
     else:
-        messages.add_message(request, messages.ERROR, 'Taki serwer nie istnieje lub nie jesteś jego właścicielem.')
+        messages.add_message(request, messages.ERROR, 'Nie posiadasz dostępu do tego serwera.')
         return redirect('/')
 
 
 def actualize_servers_data():
-    threading.Timer(60 * 6, actualize_servers_data).start()  # called every 6 minutes
+    threading.Timer(60 * 6, actualize_servers_data).start()  # Funkcja wywoływana co 6 minut
     for server in Server.objects.all():
         get_server_data = requests.get('https://api.mcsrvstat.us/2/' + server.server_ip).json()
         status = get_server_data["online"]
