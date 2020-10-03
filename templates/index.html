@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% block body %}
     <div class="container">
-    <div class="alert alert-warning" role="alert">
-      IVshop przeszedł na projekt opensource, repozytorium: <a href="https://github.com/ivall/ivshop">https://github.com/ivall/ivshop</a>
-    </div>
         {% if request.session.username %}
                 <div class="add-server-button d-flex justify-content-center">
                     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addServerModal">Dodaj serwer</button>
@@ -65,6 +62,9 @@
 
                 <div class="sponsors">
                     <a href="https://dasddas.me/" target="_blank">
+                        <img class="likemc" src="https://dasddas.me/baner3.png" alt="dasddas">
+                    </a>
+                    <a href="https://dasddas.me/" target="_blank">
                         <img class="likemc" src="https://dasddas.me/baner2.png" alt="dasddas">
                     </a>
                     <a href="https://dasddas.me/" target="_blank">
@@ -92,6 +92,9 @@
                 </div>
             </div>
             <div class="sponsors">
+                <a href="https://dasddas.me/" target="_blank">
+                    <img class="likemc" src="https://dasddas.me/baner3.png" alt="dasddas">
+                </a>
                 <a href="https://dasddas.me/" target="_blank">
                     <img class="likemc" src="https://dasddas.me/baner2.png" alt="dasddas">
                 </a>

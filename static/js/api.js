@@ -69,6 +69,7 @@ $(document).ready(function() {
                 $('#addProductModal').modal('hide');
                 $('.add_product_button').prop('disabled', false);
                 $('.add_product_button').html('Dodaj');
+                grecaptcha.reset();
             },
             error: function (data) {
                 toastr.error(data.responseJSON.message);
