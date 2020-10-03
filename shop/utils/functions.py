@@ -86,25 +86,6 @@ def generate_random_chars(length):
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
-@login_required
-def authorize_panel(request, server_id):
-    admins = []
-    server = Server.objects.filter(id=server_id).values('owner_id', 'admins')
-    if not server:
-        messages.add_message(request, messages.ERROR, 'Taki serwer nie istnieje.')
-        return redirect('/')
-
-    if server[0]['admins']:
-        admins = Server.get_admins(server_id)
-    user_id = request.session['user_id']
-
-    if user_id in admins or int(user_id) == server[0]['owner_id']:
-        return True
-    else:
-        messages.add_message(request, messages.ERROR, 'Nie posiadasz dostępu do tego serwera.')
-        return redirect('/')
-
-
 def actualize_servers_data():
     threading.Timer(60 * 6, actualize_servers_data).start()  # Funkcja wywoływana co 6 minut
     for server in Server.objects.all():

@@ -10,7 +10,7 @@ from django.conf import settings
 from lvluppayments.payments import Payments
 
 from shop.utils.oauth2 import Oauth
-from shop.utils.functions import authorize_panel, send_commands, check_rcon_connection, login_required, \
+from shop.utils.functions import send_commands, check_rcon_connection, login_required, \
     generate_random_chars, send_webhook_discord
 
 from .models import Server, PaymentOperator, Product, Purchase, Voucher
@@ -80,7 +80,7 @@ def callback(request):
 
 @csrf_exempt
 def add_server(request):
-    if not 'user_id' in request.session:
+    if 'user_id' not in request.session:
         return JsonResponse({'message': 'Nie jesteś zalogowany.'}, status=401)
 
     server_name = request.POST.get("server_name")
@@ -111,6 +111,7 @@ def add_server(request):
     )
     i.save()
     return JsonResponse({'message': 'Dodano serwer, możesz teraz odświeżyć stronę.'})
+
 
 @csrf_exempt
 @login_required
@@ -154,6 +155,7 @@ def panel(request, server_id):
     }
 
     return render(request, 'panel.html', context=context)
+
 
 @csrf_exempt
 @login_required
@@ -225,6 +227,7 @@ def add_product(request):
         p.save()
         return JsonResponse({'message': 'Dodano produkt.'}, status=200)
 
+
 @csrf_exempt
 @login_required
 def add_operator(request, operator_type):
@@ -283,6 +286,7 @@ def add_operator(request, operator_type):
     messages.add_message(request, messages.SUCCESS, 'Dodano nowego operatora płatności.')
     return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
+
 @csrf_exempt
 @login_required
 def save_settings2(request):
@@ -309,6 +313,7 @@ def save_settings2(request):
 
     return JsonResponse({'message': 'Zapisano ustawienia'}, status=200)
 
+
 @csrf_exempt
 @login_required
 def remove_product(request):
@@ -320,6 +325,7 @@ def remove_product(request):
 
     product_to_delete.delete()
     return JsonResponse({'message': 'Produkt został usunięty.'}, status=200)
+
 
 @csrf_exempt
 @login_required
@@ -369,6 +375,7 @@ def remove_payment_operator(request):
     operator.delete()
     messages.add_message(request, messages.SUCCESS, 'Operator został usunięty.')
     return JsonResponse({'message': 'Operator został usunięty.'}, status=200)
+
 
 @csrf_exempt
 def shop(request, server_id):
