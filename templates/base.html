@@ -3,15 +3,6 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-83594382-6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-83594382-6');
-</script>
     <title>IVshop - darmowy itemshop dla serwerów minecraft</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,8 +31,8 @@
 <script src="{% static 'js/shards.min.js' %}"></script>
 <script src="{% static 'js/api.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
-<script type="text/javascript" src="/static/ckeditor/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="/static/ckeditor/ckeditor/adapters/jquery.js"></script>
+<script src="/static/ckeditor/ckeditor/ckeditor.js"></script>
+<script src="/static/ckeditor/ckeditor/adapters/jquery.js"></script>
 {% if messages %}
     {% for message in messages %}
         <script>toastr.{{ message.tags }}('{{ message }}')</script>
