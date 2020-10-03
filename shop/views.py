@@ -17,10 +17,13 @@ from .models import Server, PaymentOperator, Product, Purchase, Voucher
 
 from shop.forms import ProductDescriptionForm
 
+from config import RECAPTCHA_SECRET_KEY
+
 if not settings.DEBUG:
     from shop.utils.functions import actualize_servers_data
 
     actualize_servers_data()
+
 
 @csrf_exempt
 def index(request):
@@ -39,9 +42,11 @@ def index(request):
         return render(request, "index.html", context)
     return render(request, "index.html")
 
+
 @csrf_exempt
 def handler404(request, exception):
     return render(request, '404.html', status=404)
+
 
 @csrf_exempt
 def login(request):
@@ -51,6 +56,7 @@ def login(request):
     del request.session['user_id']
     return redirect(Oauth.discord_login_url)
 
+
 @csrf_exempt
 def logout(request):
     if 'username' in request.session:
@@ -59,6 +65,7 @@ def logout(request):
         return redirect('/')
     messages.add_message(request, messages.ERROR, 'Nie jesteś zalogowany.')
     return redirect('/')
+
 
 @csrf_exempt
 def callback(request):
@@ -160,6 +167,13 @@ def panel(request, server_id):
 @csrf_exempt
 @login_required
 def add_product(request):
+    captcha = request.POST.get("captcha")
+    if not captcha:
+        return JsonResponse({'message': 'Uzupełnij recaptche.'}, status=411)
+    r = requests.post('https://www.google.com/recaptcha/api/siteverify', params={'secret': RECAPTCHA_SECRET_KEY, 'response': captcha}).json()
+    if not r['success']:
+        return JsonResponse({'message': 'Uzupełnij recaptche.'}, status=411)
+
     server_id = request.POST.get("server_id")
     product_name = request.POST.get("product_name")
     product_description = request.POST.get("product_description")

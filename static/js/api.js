@@ -62,7 +62,8 @@ $(document).ready(function() {
             url: '/add_product/',
             type: 'POST',
             data: {product_name: product_name, server_id: server_id, product_description: product_description,
-                lvlup_sms_price: lvlup_sms_price, lvlup_other_price: lvlup_other_price, product_commands: product_commands, product_image: product_image, microsms_sms_price: microsms_sms_price},
+                lvlup_sms_price: lvlup_sms_price, lvlup_other_price: lvlup_other_price, product_commands: product_commands,
+                product_image: product_image, microsms_sms_price: microsms_sms_price, captcha: grecaptcha.getResponse()},
             success: function (data) {
                 toastr.success(data.message);
                 $('#addProductModal').modal('hide');
