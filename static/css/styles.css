@@ -133,17 +133,6 @@ p {
     margin-left: 15px;
     margin-bottom: 20px;
 }
-.sponsors {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-.sponsor, .likemc {
-    max-height: 120px;
-    max-width: 100%;
-    object-fit: contain;
-    margin-top: 15px;
-}
 .cke_chrome {
     width: 100% !important;
 }
