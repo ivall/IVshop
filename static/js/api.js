@@ -351,11 +351,11 @@ $(document).ready(function() {
         var microsms_sms_price = $("#edit_microsms_sms_price").val();
         var product_commands = $("#edit_product_commands").val();
         var product_image = $("#edit_product_image").val();
-        console.log(lvlup_sms_price);
+        var server_id = $("#server_id").val();
         $.ajax({
             url: '/add_product/',
             type: 'POST',
-            data: {product_id: product_id, product_name: product_name, product_description: product_description,
+            data: {server_id: server_id, product_id: product_id, product_name: product_name, product_description: product_description,
                    lvlup_sms_price: lvlup_sms_price, microsms_sms_price: microsms_sms_price,
                    product_commands: product_commands, product_image: product_image, edit_mode: 'True', lvlup_other_price: lvlup_other_price},
             success: function (data) {

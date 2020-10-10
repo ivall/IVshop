@@ -168,11 +168,12 @@ def panel(request, server_id):
 @login_required
 def add_product(request):
     captcha = request.POST.get("captcha")
-    if not captcha:
+
+    if not captcha and not request.POST.get('edit_mode'):
         return JsonResponse({'message': 'Uzupełnij recaptche.'}, status=411)
     r = requests.post('https://www.google.com/recaptcha/api/siteverify', params={'secret': RECAPTCHA_SECRET_KEY, 'response': captcha}).json()
-    if not r['success']:
-        return JsonResponse({'message': 'Uzupełnij recaptche.'}, status=411)
+    if not r['success'] and not request.POST.get('edit_mode'):
+        return JsonResponse({'message': 'Uzupełnij recaptche xd.'}, status=411)
 
     server_id = request.POST.get("server_id")
     product_name = request.POST.get("product_name")
@@ -182,20 +183,17 @@ def add_product(request):
     microsms_sms_number = request.POST.get("microsms_sms_price")
     product_commands = request.POST.get("product_commands")
     product_image = request.POST.get("product_image")
+    edit_mode = request.POST.get("edit_mode")
 
-    if not product_name or not product_description or not product_commands:
-        return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
-    if not server_id and not request.POST.get('edit_mode'):
+    if not product_name or not product_description or not product_commands or not server_id:
         return JsonResponse({'message': 'Uzupełnij informacje o produkcie.'}, status=411)
 
-    if server_id:
+    if not edit_mode:
         check_payment_type = PaymentOperator.objects.filter(server__id=server_id)
-
     elif request.POST.get("product_id"):
         server_id = Product.objects.filter(id=request.POST.get("product_id")).values('server__id')
         server_id = server_id[0]['server__id']
         check_payment_type = PaymentOperator.objects.filter(server_id=server_id)
-
     else:
         return JsonResponse({'message': 'Wystąpił niespodziewany błąd.'}, status=404)
 
@@ -218,7 +216,7 @@ def add_product(request):
         elif lvlup_other_price > 999.99:
             return JsonResponse({'message': 'Maksymalna cena wynosi 999.99 PLN.'}, status=401)
 
-    if request.POST.get('edit_mode'):
+    if edit_mode:
         Product.objects.select_for_update().filter(id=request.POST.get("product_id")).update(
             product_name=product_name,
             product_description=product_description,
@@ -546,7 +544,6 @@ def buy_other(request):
         payment_id = link['id']
     except:
         return JsonResponse({'message': 'Wystąpił błąd, prawdopodobnie niepoprawny klucz api.'}, status=401)
-
     p = Purchase(
         lvlup_id=payment_id,
         buyer=player_nick,
