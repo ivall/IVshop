@@ -370,10 +370,11 @@ $(document).ready(function() {
     $(document).on("click", ".generate_voucher_button", function () {
         var product_id = $('#add_voucher_product').val();
         var server_id = $("#server_id").val();
+        var voucher_code = $("#voucher_code").val();
         $.ajax({
             url: '/generate_voucher/',
             type: 'POST',
-            data: {product_id: product_id, server_id: server_id},
+            data: {product_id: product_id, server_id: server_id, voucher_code: voucher_code},
             success: function (data) {
                 $('#addVoucherModal').modal('hide');
                 toastr.success(data.message)

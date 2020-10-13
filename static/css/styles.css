@@ -26,7 +26,8 @@ p {
 .add_product,
 .settings2,
 .edit_product,
-.castomization_site {
+.castomization_site,
+#own_voucher_code {
     width: 350px;
 }
 .use_voucher {

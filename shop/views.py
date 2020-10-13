@@ -343,12 +343,17 @@ def remove_product(request):
 @login_required
 def generate_voucher(request):
     product_id = request.POST.get('product_id')
+    voucher_code = request.POST.get('voucher_code')
+    if voucher_code:
+        code = voucher_code
+    else:
+        code = generate_random_chars(6)
+
     product = Product.objects.filter(id=product_id)
 
     if not product.exists():
         return JsonResponse({'message': 'Taki produkt nie istnieje.'}, status=401)
 
-    code = generate_random_chars(6)
     v = Voucher(
         product=Product.objects.get(id=product_id),
         code=code,

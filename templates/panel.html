@@ -428,6 +428,8 @@
                         {% endif %}
                       {% endfor %}
                   </select>
+                  <label for="own_voucher_code" class="col-form-label">Własny kod vouchera (opcjonalnie)</label>
+                  <input type="text" name="own_voucher_code" class="form-control" id="own_voucher_code" placeholder="xiaomilepsze">
               </div>
           </div>
           <div class="modal-footer">
@@ -512,6 +514,7 @@
                   <input type="url" name="server_logo_image" class="form-control castomization_site" id="server_logo_image" placeholder="Link do zdjęcia" value="{{ server_logo }}">
                   <label for="server_own_css" class="col-form-label">Własny CSS</label>
                   <input type="url" name="server_own_css" class="form-control castomization_site" id="server_own_css" placeholder="Link do własnego CSS" value="{{ own_css }}">
+                  <p>Skorzystaj z <a href="https://hosting.zxu.pl">hosting.zxu.pl</a>.</p>
                   <label for="shop_style">Styl sklepu</label>
                   <select class="custom-select" id="shop_style">
                       <option value="light">jasny</option>
