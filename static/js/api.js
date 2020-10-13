@@ -370,7 +370,7 @@ $(document).ready(function() {
     $(document).on("click", ".generate_voucher_button", function () {
         var product_id = $('#add_voucher_product').val();
         var server_id = $("#server_id").val();
-        var voucher_code = $("#voucher_code").val();
+        var voucher_code = $("#own_voucher_code").val();
         $.ajax({
             url: '/generate_voucher/',
             type: 'POST',
