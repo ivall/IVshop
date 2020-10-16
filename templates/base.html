@@ -40,8 +40,8 @@
 <script src="{% static 'js/shards.min.js' %}"></script>
 <script src="{% static 'js/api.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
-<script type="text/javascript" src="{% static '/ckeditor/ckeditor/ckeditor.js' %}"></script>
-<script type="text/javascript" src="{% static '/ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
 {% if messages %}
     {% for message in messages %}
         <script>toastr.{{ message.tags }}('{{ message }}')</script>
