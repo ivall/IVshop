@@ -76,6 +76,8 @@ def callback(request):
             user_json = Oauth.get_user_json(access_token)
             username = user_json.get("username")
             user_id = user_json.get("id")
+            if not user_id or not username:
+                raise Exception('Login canceled')
             request.session['username'] = username
             request.session['user_id'] = user_id
             return redirect('/')
