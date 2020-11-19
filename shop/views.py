@@ -377,7 +377,7 @@ def customize_website(request):
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"),
         discord_webhook=request.POST.get("discord_webhook"),
-        admins=request.POST.get("admins"))
+        admins=request.POST.get("admins").replace(" ", ""))
 
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 
