@@ -456,7 +456,7 @@ def buy_sms(request):
         if po['client_id'] and po['operator_type'] == 'lvlup_sms':
             client_id = po['client_id']
     if request.POST.get("payment_type") == "1":
-        url = f"https://lvlup.pro/api/checksms?id={client_id}&code={sms_code}&number={sms_number}&desc=[IVshop] Zarobek z itemshopu"
+        url = f"https://lvlup.pro/api/checksms?id={client_id}&code={sms_code}&number={sms_number}&desc=[IVshop] Zarobek z itemshopu ({player_nick})"
         r = requests.get(url).json()
         if not r['valid']:
             return JsonResponse({'message': 'Niepoprawny kod SMS.'}, status=401)

@@ -41,7 +41,12 @@ $(document).ready(function() {
                 $('.add-server').html('Dodaj');
             },
             error: function (data) {
-                toastr.error(data.responseJSON.message);
+                try {
+                    toastr.error(data.responseJSON.message);
+                }
+                catch (error) {
+                    toastr.error('Nie udało się nawiązać połączenia z rcon.');
+                }
                 $('.add-server').prop('disabled', false);
                 $('.add-server').html('Dodaj');
             }
