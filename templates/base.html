@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="IVshop to w pełni darmowy itemshop bez limitów i reklam dla serwerów minecraft. Całość jest trzymana na naszych serwerach
     dzięki czemu nie musisz kupować hostingów, vpsów.">
-    <meta name="keywords" content="minecraft, itemshop, ivshop, itemshop minecraft, darmowy itemshop, sklep minecraft, sklep, darmowy itemshop minecraft">
+    <meta name="keywords" content="minecraft, itemshop, ivshop, itemshop minecraft, darmowy itemshop, sklep minecraft, sklep, darmowy itemshop minecraft, sklep, shop, itemshop, minecraft, items, free, darmowy, ivall">
     <meta property="og:site_name" content="IVshop">
     <meta property="og:type" content="website">
     <meta property="og:title" content="IVshop - darmowy itemshop dla serwerów minecraft">
@@ -38,10 +38,12 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="{% static 'js/shards.min.js' %}"></script>
+{% if request.session.username %}
 <script src="{% static 'js/api.js' %}"></script>
 <script src="{% static 'js/main.js' %}"></script>
 <script type="text/javascript" src="/static/ckeditor/ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="/static/ckeditor/ckeditor/adapters/jquery.js"></script>
+{% endif %}
 {% if messages %}
     {% for message in messages %}
         <script>toastr.{{ message.tags }}('{{ message }}')</script>

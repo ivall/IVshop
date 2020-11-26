@@ -7,6 +7,7 @@ from mcrcon import MCRcon
 import requests
 import random
 import string
+import time
 
 
 # Sprawdza, czy użytkownik jest zalogowany i posiada dostęp do zarządzania serwerem
@@ -88,6 +89,9 @@ def generate_random_chars(length):
 
 def actualize_servers_data():
     threading.Timer(60 * 6, actualize_servers_data).start()  # Funkcja wywoływana co 6 minut
+    servers = Server.objects.all()
+    count_servers = len(servers)
+    x = 6 * 60 / count_servers - 0.2
     for server in Server.objects.all():
         get_server_data = requests.get('https://api.mcsrvstat.us/2/' + server.server_ip).json()
         status = get_server_data["online"]
@@ -98,3 +102,4 @@ def actualize_servers_data():
                                                        server_players=players)
         else:
             Server.objects.filter(id=server.id).update(server_status=status)
+        time.sleep(x)

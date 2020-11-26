@@ -1,6 +1,7 @@
 import json
 import re
 import requests
+import threading
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -22,7 +23,8 @@ from config import RECAPTCHA_SECRET_KEY
 if not settings.DEBUG:
     from shop.utils.functions import actualize_servers_data
 
-    actualize_servers_data()
+    t1 = threading.Thread(target=actualize_servers_data)
+    t1.start()
 
 
 @csrf_exempt
