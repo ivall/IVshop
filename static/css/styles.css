@@ -7,6 +7,9 @@ body {
 .server_logo h1 {
     margin: 30px 0 30px;
 }
+.server_logo img {
+    margin: 30px 0 30px;
+}
 .display-inline-flex {
     display: inline-flex;
 }
