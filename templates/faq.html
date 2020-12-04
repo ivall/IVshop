@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="container">
+		<h1>FAQ</h1>
+		<h3 class="landing_page_header">Nie mogę dodać serwera, błąd z rcon</h3>
+		<p class="landing_page_paragraph">
+			Jest wiele powodów, dla których nie możemy połączyć się z rconem. Najczęstsze powody:<br/>
+			- nie dodano portu rcon do firewalla<br/>
+			- niepoprawnie skonfigurowany rcon (np. wyłączony, złe hasło, zły port)<br/>
+			- blokujesz zewnętrzne połączenia rcon</p>
+		<h3 class="landing_page_header">Jakich operatorów obsługujecie?</h3>
+		<p class="landing_page_paragraph">IVshop obsługuje lvlup oraz microsms.</p>
+		<h3 class="landing_page_header">Jak wypłacić pieniądze z lvlup?</h3>
+		<p class="landing_page_paragraph">
+			Nie da się. Pieniądze z lvlupa można sprzedać na <a href="https://forum.lvlup.pro" target="_blank">forum</a> (dużo osób kupuje, przy kursie 0.65 szybko się sprzeda)
+			albo u <a href="https://ivall.pl" target="_blank">właściciela</a> IVshopu po kursie 0.5.
+		</p>
+		<h3 class="landing_page_header">IVshop widzi mój serwer jako wyłączony</h3>
+		<p class="landing_page_paragraph">
+			Jeżeli masz pewność, że serwer jest włączony to odczekaj 10-15 minut przed następną próbą dodania serwera.
+			Jeśli nadal serwer nie będzie wykrywany jako włączony zweryfikuj port serwera, adres ip albo domenę.
+		</p>
+		<div class="alert alert-light" role="alert">
+			<p class="text-center">Nie znalazłeś odpowiedzi na Twoje pytanie? Zapytaj na <a href="https://discord.com/invite/zmuajKx" target="_blank">discordzie</a>.</p>
+		</div>
+    </div>
+{% endblock %}

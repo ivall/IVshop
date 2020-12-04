@@ -21,4 +21,5 @@ urlpatterns = [
     path('lvlup_check', views.lvlup_check, name='lvlup_check'),
     path('use_voucher/', views.use_voucher, name='use_voucher'),
     path('success/', views.success_page, name='success_page'),
+    path('faq/', views.faq, name='faq')
 ]

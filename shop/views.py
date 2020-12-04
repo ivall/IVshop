@@ -419,6 +419,7 @@ def buy_sms(request):
     if not pattern.match(player_nick):
         return JsonResponse({'message': 'Niepoprawny format nicku.'}, status=406)
 
+    # lvlup_sms
     if request.POST.get("payment_type") == "1":
         product = Product.objects.filter(id=product_id, lvlup_sms_number=sms_number).values('server__server_ip',
                                                                                       'server__rcon_password',
@@ -469,6 +470,7 @@ def buy_sms(request):
             send_webhook_discord(product[0]['server__discord_webhook'], player_nick, product[0]['product_name'])
         return JsonResponse({'message': 'Zakupiono produkt.'}, status=200)
 
+    # microsms_sms
     elif request.POST.get("payment_type") == "2":
         pattern = re.compile("^[A-Za-z0-9]{8}$")
         if not pattern.match(sms_code):
@@ -620,13 +622,9 @@ def use_voucher(request):
 def success_page(request):
     return render(request, 'success.html')
 
-"""
-import json
-def plugin_api(request, server_id, api_key):
-    purchases = Purchase.objects.filter(product__server_id=server_id, valid=True).values('product__product_commands')
-    print(purchases[]['product__product_commands'])
-    return JsonResponse({'valid': True, 'data': data})
-"""
+
+def faq(request):
+    return render(request, 'faq.html')
 
 
 
