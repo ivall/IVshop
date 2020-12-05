@@ -369,9 +369,10 @@ def customize_website(request):
     server_id = request.POST.get("server_id")
     domain = request.POST.get("own_domain")
 
-    check_domain = Server.objects.filter(domain=domain).values('id', 'domain')
-    if check_domain and not str(check_domain[0]['id']) == server_id:
-        return JsonResponse({'message': 'Taka domena jest już w bazie.'}, status=409)
+    if domain:
+        check_domain = Server.objects.filter(domain=domain).values('id', 'domain')
+        if check_domain and not str(check_domain[0]['id']) == server_id:
+            return JsonResponse({'message': 'Taka domena jest już w bazie.'}, status=409)
 
     Server.objects.select_for_update().filter(id=server_id).update(
         logo=request.POST.get("server_logo"),
