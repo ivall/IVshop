@@ -28,6 +28,12 @@ if not settings.DEBUG:
 
 
 def index(request):
+    domain = request.META['HTTP_HOST']
+    if not domain == 'ivshop.pl' and not settings.DEBUG:
+        server = Server.objects.filter(domain=domain).values('id', 'domain')
+        if not server:
+            return redirect('/404')
+        return redirect(f"shop/{server[0]['id']}")
     if 'username' and 'user_id' in request.session:
         data = []
         user_id = request.session['user_id']
@@ -155,7 +161,8 @@ def panel(request, server_id):
         'assigned_operators': exclude,
         'discord_webhook': server.discord_webhook,
         'ProductDescriptionForm': ProductDescriptionForm,
-        'admins': server.admins
+        'admins': server.admins,
+        'domain': server.domain
     }
 
     return render(request, 'panel.html', context=context)
@@ -360,13 +367,19 @@ def generate_voucher(request):
 @login_required
 def customize_website(request):
     server_id = request.POST.get("server_id")
+    domain = request.POST.get("own_domain")
+
+    check_domain = Server.objects.filter(domain=domain).values('id', 'domain')
+    if check_domain and not str(check_domain[0]['id']) == server_id:
+        return JsonResponse({'message': 'Taka domena jest już w bazie.'}, status=409)
 
     Server.objects.select_for_update().filter(id=server_id).update(
         logo=request.POST.get("server_logo"),
         own_css=request.POST.get("own_css"),
         shop_style=request.POST.get("shop_style"),
         discord_webhook=request.POST.get("discord_webhook"),
-        admins=request.POST.get("admins").replace(" ", ""))
+        admins=request.POST.get("admins").replace(" ", ""),
+        domain=domain)
 
     return JsonResponse({'message': 'Zapisano.'}, status=200)
 

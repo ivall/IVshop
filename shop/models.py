@@ -17,6 +17,7 @@ class Server(models.Model):
     shop_style = models.CharField(max_length=5, default="light")
     discord_webhook = models.URLField(blank=True)
     admins = models.TextField(blank=True, null=True, default=" ")  # Osoby mające dostęp do itemshopu (wymienione id discord użytkowników po przecinku)
+    domain = models.CharField(blank=True, null=True, max_length=64, default=" ")
 
     def get_admins(server_id):
         try:

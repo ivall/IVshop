@@ -389,10 +389,11 @@ $(document).ready(function() {
         var shop_style = $('#shop_style').val();
         var discord_webhook = $('#discord_webhook').val();
         var admins = $('#admins').val();
+        var own_domain = $('#own_domain').val();
         $.ajax({
             url: '/customize_website/',
             type: 'POST',
-            data: {server_id: server_id, server_logo: server_logo, own_css: own_css, shop_style: shop_style, discord_webhook: discord_webhook, admins: admins},
+            data: {server_id: server_id, server_logo: server_logo, own_css: own_css, shop_style: shop_style, discord_webhook: discord_webhook, admins: admins, own_domain: own_domain},
             success: function (data) {
                 toastr.success(data.message)
             },

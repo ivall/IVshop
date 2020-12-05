@@ -65,12 +65,12 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="" data-toggle="modal" data-target="#castomizationSite">Ustawienia strony</a>
+                <a href="" data-toggle="modal" data-target="#castomizationSite">Ustawienia ogólne</a>
             </div>
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
-                <a href="" data-toggle="modal" data-target="#settings2Modal">Ustawienia</a>
+                <a href="" data-toggle="modal" data-target="#settings2Modal">Ustawienia serwera</a>
             </div>
         </div>
         <div class="alert alert-light" role="alert">
@@ -266,7 +266,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="settings2ModalLabel">Ustawienia</h5>
+            <h5 class="modal-title" id="settings2ModalLabel">Ustawienia serwera</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -503,7 +503,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="castomizationSiteLabel">Ustawienia strony</h5>
+            <h5 class="modal-title" id="castomizationSiteLabel">Ustawienia ogólne</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -520,6 +520,8 @@
                       <option value="light">jasny</option>
                       <option value="dark">ciemny</option>
                   </select>
+                  <label for="own_domain" class="col-form-label">Własna domena</label>
+                  <input type="url" name="own_domain" class="form-control castomization_site" id="own_domain" value="{{ domain }}">
                   <label for="discord_webhook" class="col-form-label">Webhook discord</label>
                   <input type="url" name="discord_webhook" class="form-control castomization_site" id="discord_webhook" placeholder="Link do webhooka" value="{{ discord_webhook }}">
                   <label for="admins" class="col-form-label">Osoby mające dostęp do panelu</label>
