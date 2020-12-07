@@ -21,19 +21,23 @@ from shop.forms import ProductDescriptionForm
 from config import RECAPTCHA_SECRET_KEY
 
 if not settings.DEBUG:
-    from shop.utils.functions import actualize_servers_data
+    from shop.utils.functions import actualize_servers_data, check_rcon
 
     t1 = threading.Thread(target=actualize_servers_data)
     t1.start()
+    t2 = threading.Thread(target=check_rcon)
+    t2.start()
 
 
 def index(request):
     domain = request.META['HTTP_HOST']
     if not domain == 'ivshop.pl' and not settings.DEBUG:
         server = Server.objects.filter(domain=domain).values('id', 'domain')
-        if not server:
-            return redirect('/404')
-        return redirect(f"shop/{server[0]['id']}")
+        if server:
+            return redirect(f"shop/{server[0]['id']}")
+        else:
+            return redirect('https://ivshop.pl')
+
     if 'username' and 'user_id' in request.session:
         data = []
         user_id = request.session['user_id']
@@ -162,7 +166,8 @@ def panel(request, server_id):
         'discord_webhook': server.discord_webhook,
         'ProductDescriptionForm': ProductDescriptionForm,
         'admins': server.admins,
-        'domain': server.domain
+        'domain': server.domain,
+        'rcon_status': server.rcon_status
     }
 
     return render(request, 'panel.html', context=context)
@@ -639,6 +644,21 @@ def success_page(request):
 
 def faq(request):
     return render(request, 'faq.html')
+
+
+def check_rcon_status(request):
+    server_id = request.POST.get("server_id")
+
+    server = Server.objects.filter(id=server_id).values('server_ip', 'rcon_password', 'rcon_port')
+
+    if not check_rcon_connection(server[0]['server_ip'], server[0]['rcon_password'], server[0]['rcon_port']):
+        return JsonResponse({'message': 'Wystąpił błąd podczas łączenia się do rcon.'}, status=400)
+
+    server.update(
+        rcon_status=True
+    )
+
+    return JsonResponse({'message': 'Sukces, połączenie rcon ponownie działa.'}, status=200)
 
 
 

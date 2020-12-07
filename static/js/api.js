@@ -402,4 +402,23 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".check_rcon_connection", function () {
+        var server_id = $('#server_id').val();
+
+        $.ajax({
+            url: '/check_rcon_status/',
+            type: 'POST',
+            data: {server_id: server_id},
+            success: function (data) {
+                location.reload()
+            },
+            error: function (data) {
+                try {
+                    toastr.error(data.responseJSON.message);
+                } catch (e) {
+                    toastr.error("Nie można nawiązać połączenia z rcon");
+                }
+            }
+        });
+    });
 });

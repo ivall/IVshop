@@ -49,9 +49,14 @@
                             <span class="badge badge-light">{{ server.server_version }}</span>&nbsp;
                             <span class="badge badge-light">{{ server.server_players }}</span>&nbsp;
                             {% if server.owner_id|slugify == request.session.user_id %}
-                                <span class="badge badge-warning">Właściciel</span>
+                                <span class="badge badge-warning">Właściciel</span>&nbsp;
                                 {% else %}
-                                <span class="badge badge-primary">Administrator</span>
+                                <span class="badge badge-primary">Administrator</span>&nbsp;
+                            {% endif %}
+                            {% if not server.rcon_status %}
+                                <span class="badge badge-danger">rcon</span>
+                            {% else %}
+                                <span class="badge badge-success">rcon</span>
                             {% endif %}
                         </p>
                         <a href="/panel/{{ server.id }}" class="btn btn-primary">Zarządzaj</a>

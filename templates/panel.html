@@ -28,6 +28,13 @@
                </div>
             </div>
         </div>
+        {% if not rcon_status %}
+        <div class="alert alert-danger" role="alert">
+          Nasz system wykrył błąd w połączeniu rcon z twoim serwerem.
+          Użytkownicy aktualnie nie mogą nic kupić w sklepie, napraw problem i sprwadź połączenie rcon, aby sklep ponownie funkcjonował poprawnie.
+            <button class="btn btn-primary btn-sm check_rcon_connection">sprawdź połączenie</button>
+        </div>
+        {% endif %}
         <div class="alert alert-light" role="alert">
             <div class="text-center" style="width: 100%;">
                 <a href="" data-toggle="modal" data-target="#addProductModal">Dodaj nowy produkt</a>
@@ -83,7 +90,7 @@
             </div>
         </div>
         <!-- Po prostu tego nie ruszaj, to jest licencja MIT -->
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-dark" role="alert">
             <div class="text-center">
                 <p>Itemshop stworzony przez <a href="https://ivall.pl" target="_blank">ivalla</a>. Repozytorium: <a href="https://github.com/ivall/ivshop">https://github.com/ivall/ivshop</a></p>
             </div>
