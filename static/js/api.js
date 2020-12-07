@@ -404,6 +404,7 @@ $(document).ready(function() {
     });
     $(document).on("click", ".check_rcon_connection", function () {
         var server_id = $('#server_id').val();
+        $(".check_rcon_connection").prop('disabled', true);
 
         $.ajax({
             url: '/check_rcon_status/',
@@ -418,6 +419,7 @@ $(document).ready(function() {
                 } catch (e) {
                     toastr.error("Nie można nawiązać połączenia z rcon");
                 }
+                $(".check_rcon_connection").prop('disabled', false);
             }
         });
     });

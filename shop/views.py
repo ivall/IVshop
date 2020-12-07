@@ -646,6 +646,7 @@ def faq(request):
     return render(request, 'faq.html')
 
 
+@login_required
 def check_rcon_status(request):
     server_id = request.POST.get("server_id")
 
