@@ -1,0 +1,8 @@
+requests==2.24.0
+mcrcon==0.6.0
+Django==3.0.7
+mcrcon==0.6.0
+requests==2.24.0
+django_ckeditor==6.0.0
+djangorestframework==3.12.2
+django-html_sanitizer==0.1.5
