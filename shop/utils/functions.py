@@ -1,13 +1,15 @@
 import threading
+import requests
+import random
+import string
+import time
+import re
+
 from shop.models import Server
 from django.http import JsonResponse
 from django.contrib import messages
 from django.shortcuts import redirect
 from mcrcon import MCRcon
-import requests
-import random
-import string
-import time
 
 
 # Sprawdza, czy użytkownik jest zalogowany i posiada dostęp do zarządzania serwerem
@@ -85,6 +87,14 @@ def check_rcon_connection(server_ip, rcon_password, rcon_port):
 
 def generate_random_chars(length):
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+
+def validate_player_nick(player_nick):
+    pattern = re.compile('^\w{3,16}$')
+
+    if not pattern.match(player_nick):
+        return False
+    return True
 
 
 def check_rcon():

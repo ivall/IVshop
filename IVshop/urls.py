@@ -6,6 +6,7 @@ from config import DJANGO_ADMIN_URL
 
 urlpatterns = [
     path('', include('shop.urls')),
+    path('payments/', include('payments.urls')),
     path('api/', include('shop.api.urls')),
     path(f'{DJANGO_ADMIN_URL}/', admin.site.urls),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

@@ -178,9 +178,9 @@ $(document).ready(function() {
         var player_nick = $('#lvlup_player_nick').val();
         var sms_code = $('#lvlup_sms_code').val();
         $.ajax({
-            url: '/buy_sms/',
+            url: '/payments/buy/lvlup_sms/',
             type: 'POST',
-            data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code, payment_type: "1"},
+            data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code},
             success: function (data) {
                 toastr.success(data.message);
                 $('#lvlup_modal').modal('hide');
@@ -202,9 +202,9 @@ $(document).ready(function() {
         var player_nick = $('#microsms_player_nick').val();
         var sms_code = $('#microsms_sms_code').val();
         $.ajax({
-            url: '/buy_sms/',
+            url: '/payments/buy/microsms_sms/',
             type: 'POST',
-            data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code, payment_type: "2"},
+            data: {product_id: product_id, sms_number: sms_number, player_nick: player_nick, sms_code: sms_code},
             success: function (data) {
                 toastr.success(data.message);
                 $('#lvlup_modal').modal('hide');
@@ -224,7 +224,7 @@ $(document).ready(function() {
         var product_id = $('#product_id_modal').val();
         var player_nick = $('#player_nick').val();
         $.ajax({
-            url: '/buy_other/',
+            url: '/payments/buy/lvlup_other/',
             type: 'POST',
             data: {product_id: product_id, player_nick: player_nick},
             success: function (data) {
