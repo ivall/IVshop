@@ -31,7 +31,7 @@ def buy_lvlup_sms(request):
     server_id = product[0]['server__id']
 
     payment_operator = PaymentOperator.objects.filter(server__id=server_id, operator_type='lvlup_sms').values('client_id')
-    
+
     if not product.exists() or not payment_operator.exists():
         return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
     if product[0]['server__server_status'] == 0:
