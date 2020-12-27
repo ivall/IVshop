@@ -160,7 +160,7 @@ def buy_lvlup_other(request):
 
     domain = 'https://' + str(request.META['HTTP_HOST'])
     success_page2 = str(domain) + "/success"
-    lvlup_check_page = str(domain) + "/payments/webhook/lvlup_other"
+    lvlup_check_page = str(domain) + "/payments/webhook/lvlup_other/"
     link = payment.create_payment(format(float(price), '.2f'), success_page2, lvlup_check_page)
 
     try:
@@ -183,7 +183,7 @@ def webhook_lvlup_other(request):
     data = json.loads(request.body)
     paymentId = data['paymentId']
     status = data['status']
-    purchase = Purchase.objects.filter(lvlup_id=paymentId).values('id', 'product__product_commands', 'buyer',
+    purchase = Purchase.objects.filter(lvlup_id=paymentId, status=0).values('id', 'product__product_commands', 'buyer',
                                                                   'product__server__server_ip',
                                                                   'product__server__rcon_password',
                                                                   'product__product_commands',
@@ -210,3 +210,6 @@ def webhook_lvlup_other(request):
             send_webhook_discord(purchase[0]['product__server__discord_webhook'], purchase[0]['buyer'], purchase[0]['product__product_name'])
         return JsonResponse({'message': 'Udało się.'}, status=200)
     return JsonResponse({'message': 'Otóż nie tym razem ( ͡° ͜ʖ ͡°).'}, status=401)
+
+
+
