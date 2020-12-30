@@ -43,7 +43,7 @@
 
 {% if navbar_links %}
 <div class="server-nav-container">
-    <div class="alert {% if server.shop_style == "dark" %}alert-dark{% else %}alert-light{% endif %} server-nav" role="alert">
+    <div class="alert {% if server.shop_style == "dark" %}alert-dark nav-dark{% else %}alert-light nav-light{% endif %} server-nav" role="alert">
         {% for link in navbar_links %}
         <a href="{{ link.url }}" class="server-nav-element">{{ link.name }}</a>
         {% endfor %}
