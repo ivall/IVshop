@@ -98,32 +98,32 @@ def validate_player_nick(player_nick):
 
 
 def check_rcon():
-    threading.Timer(60 * 60 * 3, actualize_servers_data).start()  # Funkcja wywoływana co 3 godziny
-    servers = Server.objects.all()
-    count_servers = len(servers)
-    x = 60 * 60 * 3 / count_servers
-    for server in Server.objects.all():
-        rcon_status = check_rcon_connection(server.server_ip, server.rcon_password, server.rcon_port)
-        if not rcon_status:
-            Server.objects.filter(id=server.id).update(rcon_status=False)
-        else:
-            Server.objects.filter(id=server.id).update(rcon_status=True)
-        time.sleep(x)
+    while True:
+        servers = Server.objects.all()
+        count_servers = len(servers)
+        x = 60 * 60 * 3 / count_servers
+        for server in Server.objects.all():
+            rcon_status = check_rcon_connection(server.server_ip, server.rcon_password, server.rcon_port)
+            if not rcon_status:
+                Server.objects.filter(id=server.id).update(rcon_status=False)
+            else:
+                Server.objects.filter(id=server.id).update(rcon_status=True)
+            time.sleep(x)
 
 
 def actualize_servers_data():
-    threading.Timer(60 * 6, actualize_servers_data).start()  # Funkcja wywoływana co 6 minut
-    servers = Server.objects.all()
-    count_servers = len(servers)
-    x = 6 * 60 / count_servers - 0.2
-    for server in Server.objects.all():
-        get_server_data = requests.get('https://api.mcsrvstat.us/2/' + server.server_ip).json()
-        status = get_server_data["online"]
-        if status:
-            version = get_server_data["version"]
-            players = str(get_server_data["players"]["online"]) + '/' + str(get_server_data["players"]["max"])
-            Server.objects.filter(id=server.id).update(server_status=status, server_version=version,
-                                                       server_players=players)
-        else:
-            Server.objects.filter(id=server.id).update(server_status=status)
-        time.sleep(x)
+    while True:
+        servers = Server.objects.all()
+        count_servers = len(servers)
+        x = 6 * 60 / count_servers - 0.2
+        for server in Server.objects.all():
+            get_server_data = requests.get('https://api.mcsrvstat.us/2/' + server.server_ip).json()
+            status = get_server_data["online"]
+            if status:
+                version = get_server_data["version"]
+                players = str(get_server_data["players"]["online"]) + '/' + str(get_server_data["players"]["max"])
+                Server.objects.filter(id=server.id).update(server_status=status, server_version=version,
+                                                           server_players=players)
+            else:
+                Server.objects.filter(id=server.id).update(server_status=status)
+            time.sleep(x)

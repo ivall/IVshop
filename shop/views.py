@@ -513,11 +513,12 @@ def add_link(request):
 @login_required
 def remove_link(request):
     link_id = request.POST.get('link_id')
+    server_id = request.POST.get('server_id')
 
     if not link_id:
         return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
 
-    link = ServerNavbarLink.objects.filter(id=link_id)
+    link = ServerNavbarLink.objects.filter(id=link_id, server__id=server_id)
     if not link.exists():
         return JsonResponse({'message': 'Link o takim id nie istnieje.'}, status=404)
 
