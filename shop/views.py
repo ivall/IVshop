@@ -11,7 +11,7 @@ from django.conf import settings
 from shop.utils.oauth2 import Oauth
 from shop.utils.functions import send_commands, check_rcon_connection, login_required, generate_random_chars
 
-from .models import Server, PaymentOperator, Product, Purchase, Voucher
+from .models import Server, PaymentOperator, Product, Purchase, Voucher, ServerNavbarLink
 
 from shop.forms import ProductDescriptionForm
 
@@ -144,6 +144,7 @@ def panel(request, server_id):
     products = Product.objects.filter(server__id=server_id)
     vouchers = Voucher.objects.filter(product__server__id=server_id)
     payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+    server_navigations_links = ServerNavbarLink.objects.filter(server__id=server_id)
 
     for po in payment_operators:
         if po.operator_type == 'lvlup_sms' or po.operator_type == 'lvlup_other' or po.operator_type == 'microsms_sms':
@@ -172,7 +173,8 @@ def panel(request, server_id):
         'ProductDescriptionForm': ProductDescriptionForm,
         'admins': server.admins,
         'domain': server.domain,
-        'rcon_status': server.rcon_status
+        'rcon_status': server.rcon_status,
+        'server_navigation_links': server_navigations_links
     }
 
     return render(request, 'panel.html', context=context)
@@ -419,12 +421,14 @@ def shop(request, server_id):
     products = Product.objects.filter(server__id=server_id)
     purchases = Purchase.objects.filter(product__server__id=server_id, status=1).order_by('-id')[0:5]
     payment_operators = PaymentOperator.objects.filter(server__id=server_id)
+    navbar_links = ServerNavbarLink.objects.filter(server__id=server_id)
 
     context = {
         'server': check_server_exists,
         'products': products,
         'purchases': purchases,
-        'payment_operators': payment_operators
+        'payment_operators': payment_operators,
+        'navbar_links': navbar_links
     }
 
     return render(request, 'shop.html', context=context)
@@ -487,4 +491,36 @@ def check_rcon_status(request):
     return JsonResponse({'message': 'Sukces, połączenie rcon ponownie działa.'}, status=200)
 
 
+@login_required
+def add_link(request):
+    server_id = request.POST.get("server_id")
+    name = request.POST.get("link_name")
+    url = request.POST.get("link_url")
 
+    if not name or not url:
+        return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+
+    link = ServerNavbarLink(
+        server=Server.objects.get(id=server_id),
+        name=name,
+        url=url
+    )
+    link.save()
+
+    return JsonResponse({'message': 'Dodano link.'}, status=200)
+
+
+@login_required
+def remove_link(request):
+    link_id = request.POST.get('link_id')
+
+    if not link_id:
+        return JsonResponse({'message': 'Uzupełnij dane.'}, status=411)
+
+    link = ServerNavbarLink.objects.filter(id=link_id)
+    if not link.exists():
+        return JsonResponse({'message': 'Link o takim id nie istnieje.'}, status=404)
+
+    link.delete()
+
+    return JsonResponse({'message': 'Usunięto link.'}, status=200)

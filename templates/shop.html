@@ -34,11 +34,23 @@
     <h1>{{ server.server_name }}</h1>
     {% endif %}
 </div>
+
 {% if not server.rcon_status %}
 <div class="alert alert-danger text-center" role="alert">
   Aktualnie nie można zakupić produktów w tym sklepie ze względu na błąd z połączeniem rcon. Skontaktuj się z administratorem serwera.
 </div>
 {% endif %}
+
+{% if navbar_links %}
+<div class="server-nav-container">
+    <div class="alert {% if server.shop_style == "dark" %}alert-dark{% else %}alert-light{% endif %} server-nav" role="alert">
+        {% for link in navbar_links %}
+        <a href="{{ link.url }}" class="server-nav-element">{{ link.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="own-container">
     <div class="widgets">
         <div class="voucher">

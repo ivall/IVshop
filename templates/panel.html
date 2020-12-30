@@ -72,6 +72,11 @@
         </div>
         <div class="alert alert-light" role="alert">
             <div class="text-center">
+                <a href="" data-toggle="modal" data-target="#serverNavigation">Nawigacja</a>
+            </div>
+        </div>
+        <div class="alert alert-light" role="alert">
+            <div class="text-center">
                 <a href="" data-toggle="modal" data-target="#castomizationSite">Ustawienia ogólne</a>
             </div>
         </div>
@@ -596,4 +601,73 @@
            document.getElementById('id_product_description').id = 'id_product_description1';
         })();
     </script>
+    <!-- Server navigation modal -->
+    <div class="modal fade" id="serverNavigation" tabindex="-1" role="dialog" aria-labelledby="serverNavigationLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="serverNavigationLabel">Nawigacja</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <button type="button" class="btn btn-primary" style="margin-bottom: 10px;" data-toggle="modal" data-target="#addLink">Dodaj</button>
+            <table class="table">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Nazwa</th>
+                    <th>URL</th>
+                    <th>Akcje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for link in server_navigation_links %}
+                      <tr class="links">
+                        <td>{{ link.name }}</td>
+                        <td>{{ link.url }}</td>
+                        <td>
+                            <button class="remove_navigation_link btn btn-danger btn-sm" link_id="{{ link.id }}">
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                            </button>
+                        </td>
+                      </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- Add to server navigation link modal -->
+    <div class="modal fade" id="addLink" tabindex="-1" role="dialog" aria-labelledby="addLinkLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addLinkLabel">Dodaj link</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+             <div class="form-group col-md-6">
+                  <label for="link_name" class="col-form-label">Nazwa</label>
+                  <input type="url" name="link_name" class="form-control add_link" id="link_name">
+                  <label for="link_url" class="col-form-label">URL</label>
+                  <input type="url" name="link_url" class="form-control add_link" id="link_url">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+            <button type="button" class="btn btn-primary add_link_button">Dodaj</button>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

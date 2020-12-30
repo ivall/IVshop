@@ -143,3 +143,13 @@ p {
 .add-edit-product-form {
     max-width: 100%;
 }
+.server-nav-container {
+    display: flex;
+    justify-content: center;
+}
+.server-nav {
+    max-width: 100%;
+}
+.server-nav-element {
+    padding: 5px;
+}

@@ -75,3 +75,9 @@ class Voucher(models.Model):
     code = models.CharField(max_length=32)
     player = models.CharField(max_length=16)
     status = models.BooleanField()
+
+
+class ServerNavbarLink(models.Model):
+    server = models.ForeignKey(Server, on_delete=models.CASCADE)
+    name = models.CharField(max_length=16)
+    url = models.URLField()

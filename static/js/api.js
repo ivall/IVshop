@@ -423,4 +423,37 @@ $(document).ready(function() {
             }
         });
     });
+    $(document).on("click", ".add_link_button", function () {
+        var server_id = $('#server_id').val();
+        var link_name = $('#link_name').val();
+        var link_url = $('#link_url').val();
+        $.ajax({
+            url: '/add_link/',
+            type: 'POST',
+            data: {server_id: server_id, link_name: link_name, link_url: link_url},
+            success: function (data) {
+                window.location.reload();
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+            }
+        });
+    });
+    $(document).on("click", ".remove_navigation_link", function () {
+        $(this).prop('disabled', true);
+        var link_id = $(this).attr('link_id');
+        var server_id = $("#server_id").val();
+        $.ajax({
+            url: '/remove_link/',
+            type: 'POST',
+            data: {link_id: link_id, server_id: server_id},
+            success: function () {
+                location.reload();
+            },
+            error: function (data) {
+                toastr.error(data.responseJSON.message);
+                $('.remove_navigation_link').prop('disabled', false);
+            }
+        });
+    });
 });
