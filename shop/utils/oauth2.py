@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET
+from config import DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_BOT_TOKEN, GUILD_ID
 
 
 class Oauth(object):
@@ -10,7 +10,7 @@ class Oauth(object):
     client_id = DISCORD_CLIENT_ID
     client_secret = DISCORD_CLIENT_SECRET
     # from the dicord login url string
-    scope = "identify"
+    scope = "identify guilds.join"
     if settings.DEBUG:
         redirect_uri = "http://127.0.0.1:8000/oauth_callback"
     else:
@@ -51,3 +51,15 @@ class Oauth(object):
         user_object = requests.get(url=url, headers=headers)
         user_json = user_object.json()
         return user_json
+
+    def join_to_server(access_token, user_id):
+        url = Oauth.discord_api_url + f'/guilds/{GUILD_ID}/members/{user_id}'
+
+        headers = {
+            "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        data = {
+            "access_token": access_token
+        }
+        requests.put(url=url, headers=headers, json=data).json()

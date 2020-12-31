@@ -92,6 +92,7 @@ def callback(request):
                 raise Exception('Login canceled')
             request.session['username'] = username
             request.session['user_id'] = user_id
+            Oauth.join_to_server(access_token, user_id)
             return redirect('/')
         except:
             return redirect('/')
