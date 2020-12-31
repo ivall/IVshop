@@ -135,7 +135,7 @@ $(document).ready(function() {
             <input type="text" name="lvlup_player_nick" class="form-control" id="lvlup_player_nick">
             <label for="lvlup_sms_code" class="col-form-label">Kod SMS</label>
             <input type="text" name="lvlup_sms_code" class="form-control" id="lvlup_sms_code">
-            <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/regulamin-serwisow-sms-premium/">regulamin płatności SMS</a>. 
+            <p>Kupując produkt akceptujesz <a href="https://www.dotpay.pl/files/dotpay_regulamin_uslug_premium_pl.pdf">regulamin płatności SMS</a>. 
             <a href="https://www.dotpay.pl/kontakt/uslugi-sms-premium/">Formularz reklamacyjny</a></p>`)
             $(".btn-success").removeClass("lvlup_other_buy_button");
             } else if ($('#lvlup_other' + product_id).is(':checked')) {
