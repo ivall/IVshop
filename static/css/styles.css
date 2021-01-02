@@ -130,6 +130,11 @@ p {
         margin-left: 0 !important;
     }
 }
+@media (max-width: 470px) {
+    .functions {
+        flex-direction: column;
+    }
+}
 .landing_page_paragraph {
     margin-left: 15px;
     margin-bottom: 20px;
@@ -161,4 +166,12 @@ p {
 .nav-light {
     background-color: #fff;
     box-shadow: 0 0.46875rem 2.1875rem rgba(90,97,105,.1), 0 0.9375rem 1.40625rem rgba(90,97,105,.1), 0 0.25rem 0.53125rem rgba(90,97,105,.12), 0 0.125rem 0.1875rem rgba(90,97,105,.1)
+}
+.functions {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+.function-card {
+    flex: 1 0 30%;
 }

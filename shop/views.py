@@ -48,15 +48,7 @@ def index(request):
                 data.append(server)
         context = {'data': data}
         return render(request, "index.html", context)
-
-    servers = Server.objects.filter().count()
-    purchases = Purchase.objects.filter(status=1).count()
-    context = {
-        'servers_number': servers,
-        'purchases_number': purchases
-    }
-
-    return render(request, "index.html", context)
+    return render(request, "index.html")
 
 
 def handler404(request, exception):
