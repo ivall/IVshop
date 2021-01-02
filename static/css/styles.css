@@ -170,8 +170,10 @@ p {
 .functions {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: 40px;
 }
 .function-card {
     flex: 1 0 30%;
+}
+.no-bottom-margin {
+    margin-bottom: 0;
 }
