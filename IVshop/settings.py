@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
 SANITIZER_ALLOWED_TAGS = ['a', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'br', 'span', 'pre', 'em', 's', 'u', 'img']
 SANITIZER_ALLOWED_ATTRIBUTES = ['href', 'style', 'src', 'alt', 'style']
+SANITIZER_ALLOWED_STYLES = ['color']
 
 if not DEBUG:
     REST_FRAMEWORK = {

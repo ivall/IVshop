@@ -22,8 +22,8 @@ if not settings.DEBUG:
 
     t1 = threading.Thread(target=actualize_servers_data)
     t1.start()
-    t2 = threading.Thread(target=check_rcon)
-    t2.start()
+    #t2 = threading.Thread(target=check_rcon)
+    #t2.start()
 
 
 def index(request):
