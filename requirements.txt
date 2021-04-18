@@ -1,6 +1,6 @@
 requests==2.24.0
 mcrcon==0.6.0
-Django==3.0.7
+Django==3.0.14
 mcrcon==0.6.0
 requests==2.24.0
 django_ckeditor==6.0.0
